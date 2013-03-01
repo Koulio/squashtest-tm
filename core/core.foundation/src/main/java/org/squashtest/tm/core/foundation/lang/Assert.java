@@ -21,6 +21,7 @@
 
 package org.squashtest.tm.core.foundation.lang;
 
+import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -75,5 +76,15 @@ public final class Assert {
 			throw new IllegalStateException(message);
 		}
 
+	}
+
+	/**
+	 * @param parameter
+	 * @param parameterName
+	 */
+	public static void parameterNotNull(Object parameter, String parameterName) {
+		if (parameter == null) {
+			throw new NullArgumentException(parameterName);
+		}
 	}
 }
