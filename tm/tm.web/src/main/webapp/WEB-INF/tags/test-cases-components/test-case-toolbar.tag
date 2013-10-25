@@ -55,8 +55,7 @@
 	<div style="clear: both;"></div>
 	<c:if test="${ moreThanReadOnly }">
 		<comp:opened-object otherViewers="${ otherViewers }"
-							objectUrl="${ testCaseUrl }" 
-							isContextual="${ ! isInfoPage }" />
+							objectUrl="${ testCaseUrl }" />
 	</c:if>
 
 </div>

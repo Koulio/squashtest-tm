@@ -157,7 +157,7 @@
 		</div>
 		<div style="clear: both;"></div>
     <c:if test="${ editable }">
-      <comp:opened-object otherViewers="${ otherViewers }" objectUrl="${ executionUrl }" isContextual="false" />
+      <comp:opened-object otherViewers="${ otherViewers }" objectUrl="${ executionUrl }" />
     </c:if>
 	</div>
 

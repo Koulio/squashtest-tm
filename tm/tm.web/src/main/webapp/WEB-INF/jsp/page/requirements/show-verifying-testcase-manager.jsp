@@ -56,7 +56,7 @@
 			<div style="clear:both;"></div>
 	</jsp:attribute>
 	<jsp:attribute name="tablePane">
-		<comp:opened-object otherViewers="${ otherViewers }" objectUrl="${ requirementUrl }" isContextual="false"/>
+		<comp:opened-object otherViewers="${ otherViewers }" objectUrl="${ requirementUrl }" />
 		
 		<aggr:decorate-verifying-test-cases-table editable="true" model="${verifyingTestCaseModel}" requirementVersion="${requirementVersion}" batchRemoveButtonId="none"/>
 				

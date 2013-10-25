@@ -200,7 +200,7 @@
 	</div>
 	<div style="clear: both;"></div>
 	<c:if test="${ moreThanReadOnly }">
-		<comp:opened-object otherViewers="${ otherViewers }" objectUrl="${ iterationUrl }" isContextual="${ ! param.isInfoPage }" />
+		<comp:opened-object otherViewers="${ otherViewers }" objectUrl="${ iterationUrl }"/>
 	</c:if>
 </div>
 

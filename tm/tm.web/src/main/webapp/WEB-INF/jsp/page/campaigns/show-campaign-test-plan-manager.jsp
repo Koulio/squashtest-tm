@@ -124,7 +124,7 @@
 		<div style="clear:both;"></div>
 	</jsp:attribute>	
 	<jsp:attribute name="tablePane">
-		<comp:opened-object otherViewers="${ otherViewers }" objectUrl="${ campaignUrl }" isContextual="false"/>
+		<comp:opened-object otherViewers="${ otherViewers }" objectUrl="${ campaignUrl }" />
 		
 		<aggr:campaign-test-plan-manager-table 
 			campaignUrl="${ campaignUrl }" 

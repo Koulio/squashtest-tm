@@ -25,7 +25,7 @@
  * 
  */
 
-define([ 'jquery', 'jqueryui' ], function($) {
+define([ 'jquery', 'workspace.event-bus', 'jqueryui' ], function($, eventBus) {
 
 	squashtm = squashtm || {};
 	squashtm.workspace = squashtm.workspace || {};
@@ -36,14 +36,14 @@ define([ 'jquery', 'jqueryui' ], function($) {
 
 		$.fn.contextualContent = function() {
 
-			this.listeners = [];
 			this.currentUrl = "";
+			this.eventBus = eventBus;
 			this.currentXhr = {
 				readyState : 4,
 				abort : function() {
 				}
-			}; // we initialize it to null
-			this.onCleanContent = null;
+			}; 
+			
 
 			/* **************** super private ************* */
 
@@ -55,21 +55,13 @@ define([ 'jquery', 'jqueryui' ], function($) {
 
 			var cleanContent = $.proxy(function() {
 				// notify the handlers that we're moving to another content
-				this.fire(null, {
-					evt_name : "contextualcontent.clear"
-				});
-				
-				// remove all previous handlers.
-				this.listeners = [];
-				this.off();
+				this.eventBus.clearContextualListeners();
 				
 				// clean the content
 				_cleanPopups();
+				
 				this.empty();
-				if (this.onCleanContent !== null) {
-					this.onCleanContent();
-					this.onCleanContent = null;
-				}
+				
 			}, this);
 
 			var abortIfRunning = $.proxy(function() {
@@ -79,24 +71,6 @@ define([ 'jquery', 'jqueryui' ], function($) {
 			}, this);
 
 			/* ******************* public **************** */
-
-			this.fire = function(origin, event) {
-				
-				//jquery event
-				this.trigger(event.evt_name, event);
-				
-				//for old school event API
-				for ( var i in this.listeners) {
-					var listener = this.listeners[i];
-					if (listener !== origin) {
-						listener.update(event);
-					}
-				}
-			};
-
-			this.addListener = function(listener) {
-				this.listeners.push(listener);
-			};
 
 			this.loadWith = function(url, params) {
 				var defer = $.Deferred();

@@ -160,7 +160,7 @@
 			</div>
 			<div class="fragment-body">
 				<c:url var="testSuiteUrl" value="/test-suites/${ testSuite.id }" />
-				<comp:opened-object otherViewers="${ otherViewers }" objectUrl="${ testSuiteUrl }" isContextual="false"/>
+				<comp:opened-object otherViewers="${ otherViewers }" objectUrl="${ testSuiteUrl }"/>
 				<aggr:test-suite-test-plan-manager-table testSuite="${testSuite}" />
 			</div>
 		</div>

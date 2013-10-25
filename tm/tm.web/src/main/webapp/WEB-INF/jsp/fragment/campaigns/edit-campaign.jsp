@@ -174,7 +174,7 @@
 	<div style="clear: both;"></div>
 	<c:if test="${ moreThanReadOnly }">
 		<comp:opened-object otherViewers="${ otherViewers }"
-			objectUrl="${ campaignUrl }" isContextual="${ ! param.isInfoPage }" />
+			objectUrl="${ campaignUrl }" />
 	</c:if>
 </div>
 

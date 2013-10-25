@@ -23,7 +23,6 @@
 <%@ tag body-content="empty" description="Displays message if other user is viewing the same object and send a request when the user leaves the page" %>
 <%@ attribute name="objectUrl" required="true" %>
 <%@ attribute name="otherViewers" required="true" type="java.lang.Boolean"%>
-<%@ attribute name="isContextual" required="true" type="java.lang.Boolean"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="f"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
@@ -31,15 +30,18 @@
 <div style="color: #7E0426; display: block; text-align: center;"><p><f:message key="squashtm.generic.opened-object.quit.message"/></p></div>
 </c:if>
 <script>
-function quitTestCase (){
-	 $.ajax({
-			type : 'DELETE',
-			url : '${objectUrl}'+'/opened-entity',
-			async : false
-});
-}
-window.onbeforeunload = quitTestCase;
-<c:if test="${ isContextual }">
-squashtm.workspace.contextualContent.onCleanContent = quitTestCase;
-</c:if>
+	$(function(){		
+
+		function releaseEntity (){
+			 $.ajax({
+					type : 'DELETE',
+					url : '${objectUrl}'+'/opened-entity',
+					async : false
+		});
+			 
+		require(["jquery","workspace.event-bus"], function($, eventBus){
+			window.onbeforeunload = releaseEntity;
+			eventBus.on('contextualcontent.clear', releaseEntity);
+		});
+	});
 </script>

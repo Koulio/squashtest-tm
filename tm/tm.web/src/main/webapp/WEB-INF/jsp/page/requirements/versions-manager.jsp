@@ -67,7 +67,7 @@
 				
 				<div class="unsnap"></div>
 				<authz:authorized hasRole="ROLE_ADMIN" hasPermission="WRITE" domainObject="${ requirement }">
-					<comp:opened-object otherViewers="${ otherViewers }" objectUrl="${ requirementUrl }" isContextual="false"/>
+					<comp:opened-object otherViewers="${ otherViewers }" objectUrl="${ requirementUrl }" />
 				</authz:authorized>
 			</div>
 			

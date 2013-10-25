@@ -239,7 +239,7 @@ that page won't be editable if
 
 	<div style="clear:both;"></div>	
 	<c:if test="${ moreThanReadOnly	 }">
-	<comp:opened-object otherViewers="${ otherViewers }" objectUrl="${ requirementUrl }" isContextual="${ ! param.isInfoPage }"/>
+	<comp:opened-object otherViewers="${ otherViewers }" objectUrl="${ requirementUrl }" />
 	</c:if>
 </div>
 <%-- ----------------------------------- /AUDIT & TOOLBAR  ----------------------------------------------%>	

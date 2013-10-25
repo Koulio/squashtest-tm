@@ -155,7 +155,7 @@
 			</div>
 			<div class="fragment-body">			
 			
-				<comp:opened-object otherViewers="${ otherViewers }" objectUrl="${ iterationUrl }" isContextual="false"/>
+				<comp:opened-object otherViewers="${ otherViewers }" objectUrl="${ iterationUrl }" />
 				<aggr:iteration-test-plan-manager-table iteration="${iteration}"/>
 			
 			</div>
