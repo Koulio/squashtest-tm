@@ -18,29 +18,27 @@
  *     You should have received a copy of the GNU Lesser General Public License
  *     along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.squashtest.tm.api.plugin;
+package org.squashtest.tm.service.internal.batchimport;
 
-/**
- * Enumeration of Squash main entities.
- * 
- * @author Gregory Fouquet
- * 
- */
-public enum EntityType {
-	PROJECT, 
-	TEST_CASE_LIBRARY, 
-	TEST_CASE_FOLDER, 
-	TEST_CASE,
-	TEST_CASE_STEP, 
-	REQUIREMENT_LIBRARY, 
-	REQUIREMENT_FOLDER, 
-	REQUIREMENT, 
-	REQUIREMENT_VERSION, 
-	CAMPAIGN_LIBRARY, 
-	CAMPAIGN_FOLDER, 
-	CAMPAIGN, 
-	ITERATION, 
-	EXECUTION,
-	TEST_SUITE,
-	EXECUTION_STEP
+import org.squashtest.tm.api.plugin.EntityType;
+
+public class Target {
+	private EntityType type;
+	private String path;
+	
+	public Target(EntityType type, String path) {
+		super();
+		this.type = type;
+		this.path = path;
+	}
+
+	public EntityType getType() {
+		return type;
+	}
+
+	public String getPath() {
+		return path;
+	}
+	
+	
 }
