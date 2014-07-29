@@ -321,6 +321,33 @@
         </dependency>
       </dependencies>
     </profile>
+  
+  <profile>
+      <id>postgresqlDev</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>environment.type</name>
+          <value>postgresqlDev</value>
+        </property>
+      </activation>
+      <properties>
+        <db.dialect>org.hibernate.dialect.PostgreSQLDialect</db.dialect>
+        <db.driver>org.postgresql.Driver</db.driver>
+        <db.url>${dev.postgres.url}</db.url>
+        <db.username>${dev.postgres.username}</db.username>
+        <db.password>${dev.postgres.password}</db.password>
+        <!-- for database generation only -->
+        <db.create.user>root</db.create.user>
+        <db.create.password></db.create.password>
+      </properties>
+      <dependencies>
+        <dependency>
+          <groupId>org.postgresql</groupId>
+          <artifactId>com.springsource.org.postgresql.jdbc4</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
   </profiles>
 
   <dependencies>
