@@ -87,8 +87,12 @@ class HibernateCampaignDaoIT extends DbunitDaoSpecification {
 		filt.hasFilter(HibernateCampaignDao.MODE_DATA) >> active
 		filt.getFilter(HibernateCampaignDao.MODE_DATA) >> filter
 
-		expect:
-		campaignDao.findFilteredIndexedTestPlan(-10L, sort, filt).collect { it.item.id } == expectedId
+		when:
+		def res = campaignDao.findFilteredIndexedTestPlan(-10L, sort, filt).collect { it.item.id }
+
+		then:
+		res.containsAll(expectedId)
+		res.size() == expectedId.size()
 
 		where:
 		active   | filter                          | expectedId

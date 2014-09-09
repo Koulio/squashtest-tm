@@ -22,6 +22,7 @@ package org.squashtest.tm.service.testautomation
 
 import javax.inject.Inject
 
+import org.hibernate.SessionFactory;
 import org.hibernate.exception.ConstraintViolationException
 import org.spockframework.util.NotThreadSafe
 import org.springframework.transaction.annotation.Transactional
@@ -41,8 +42,7 @@ import spock.unitils.UnitilsSupport
 public class TestAutomationProjectManagerServiceIT extends DbunitServiceSpecification {
 
 	@Inject
-	private TestAutomationProjectManagerService service
-
+	TestAutomationProjectManagerService service
 
 	@DataSet("TestAutomationService.sandbox.xml")
 	def "should persist a new TestAutomationProject"(){
@@ -73,6 +73,8 @@ public class TestAutomationProjectManagerServiceIT extends DbunitServiceSpecific
 
 		when :
 		service.persist(project)
+		session.flush()
+
 		then :
 		notThrown ConstraintViolationException
 	}
@@ -87,6 +89,9 @@ public class TestAutomationProjectManagerServiceIT extends DbunitServiceSpecific
 
 		when :
 		service.persist(project)
+		session.flush()
+
+
 		then :
 		thrown ConstraintViolationException
 	}
