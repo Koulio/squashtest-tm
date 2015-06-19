@@ -156,3 +156,5 @@ syntax: regexp
 ^tm/tm\.aspects/META-INF$
 ^tm/tm\.domain/target$
 ^tm/tm\.domain/META-INF/.*$
+\.iml$
+^\.idea\/
