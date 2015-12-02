@@ -20,12 +20,13 @@
  */
 package org.squashtest.tm.service.internal.repository;
 
+import org.squashtest.tm.domain.requirement.Requirement;
 import org.squashtest.tm.domain.requirement.RequirementLibrary;
 import org.squashtest.tm.domain.requirement.RequirementLibraryNode;
 
 @SuppressWarnings("rawtypes")
-public interface RequirementLibraryDao extends LibraryDao<RequirementLibrary, RequirementLibraryNode> {
+public interface RequirementLibraryDao extends LibraryDao<RequirementLibrary, RequirementLibraryNode>, EntityDao<RequirementLibrary> {
 
-	void persist(RequirementLibrary library);
+    void persist(RequirementLibrary library);
 
 }

@@ -4,18 +4,29 @@
   <parent>
     <groupId>org.squashtest.tm</groupId>
     <artifactId>squashtest-csp-tools</artifactId>
-    <version>1.13.0.IT104-SNAPSHOT</version>
+    <version>1.13.0.NOSGI-SNAPSHOT</version>
   </parent>
   <artifactId>tools.annotation.processor</artifactId>
   <name>${project.groupId}.${project.artifactId}</name>
 
   <properties />
 
-  <dependencies>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.squashtest.tm</groupId>
+        <artifactId>squash-tm-bom</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
+  <dependencies>
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
     <dependency>
       <groupId>org.squashtest.tm</groupId>

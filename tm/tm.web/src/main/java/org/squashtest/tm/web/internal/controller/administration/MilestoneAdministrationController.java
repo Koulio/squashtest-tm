@@ -28,7 +28,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -113,12 +113,13 @@ public class MilestoneAdministrationController {
 
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView showMilestones(Locale locale) {
-		ModelAndView mav = new ModelAndView("page/milestones/show-milestones");
+		ModelAndView mav = new ModelAndView("/page/milestones/show-milestones");
 		mav.addObject("milestoneStatus", statusComboDataBuilderProvider.get().useLocale(locale).buildMap());
 		mav.addObject("editableMilestoneIds", milestoneManager.findAllIdsOfEditableMilestone());
-		mav.addObject("currentUser", StringEscapeUtils.escapeJavaScript(userService.findCurrentUser().getName()));
+		mav.addObject("currentUser", StringEscapeUtils.escapeEcmaScript(userService.findCurrentUser().getName()));
 		mav.addObject("isAdmin", permissionEvaluationService.hasRole("ROLE_ADMIN"));
 		mav.addObject("milestoneCloneStatus",  cloneStatusComboDataBuilderProvider.get().useLocale(locale).buildMap());
+
 		return mav;
 	}
 

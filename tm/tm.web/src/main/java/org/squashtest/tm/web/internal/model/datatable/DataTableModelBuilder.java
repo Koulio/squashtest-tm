@@ -20,18 +20,17 @@
  */
 package org.squashtest.tm.web.internal.model.datatable;
 
+import org.squashtest.tm.core.foundation.collection.PagedCollectionHolder;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.squashtest.tm.core.foundation.collection.PagedCollectionHolder;
-import org.squashtest.tm.domain.milestone.Milestone;
-
 /**
  * Superclass to create builders of {@link DataTableModel} AND NOTHING ELSE !
- * 
+ *
  * @author Gregory Fouquet
- * 
+ *
  * @param <X>
  */
 public abstract class DataTableModelBuilder<X> {

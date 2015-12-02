@@ -20,8 +20,8 @@
  */
 package org.squashtest.tm.plugin.testautomation.jenkins.internal.tasksteps;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.squashtest.tm.plugin.testautomation.jenkins.internal.JsonParser;
 import org.squashtest.tm.plugin.testautomation.jenkins.internal.net.RequestExecutor;
 import org.squashtest.tm.plugin.testautomation.jenkins.internal.tasks.BuildProcessor;
@@ -29,26 +29,22 @@ import org.squashtest.tm.plugin.testautomation.jenkins.internal.tasks.BuildStep;
 
 
 public class StartBuild extends BuildStep<StartBuild> implements HttpBasedStep{
-
-	private RequestExecutor requestExecutor = RequestExecutor.getInstance();
 	
-	private HttpClient client;
+	private CloseableHttpClient client;
 	
-	private HttpMethod method;
-	
-	
+	private HttpUriRequest method;
 
 	public StartBuild(BuildProcessor processor) {
 		super(processor);
 	}
 
 	@Override
-	public void setClient(HttpClient client) {
+	public void setClient(CloseableHttpClient client) {
 		this.client = client;
 	}
 
 	@Override
-	public void setMethod(HttpMethod method) {
+	public void setMethod(HttpUriRequest method) {
 		this.method = method;
 	}
 	
@@ -63,8 +59,6 @@ public class StartBuild extends BuildStep<StartBuild> implements HttpBasedStep{
 		//not needed here
 	}
 	
-	
-	//**************** code ********************
 
 	@Override
 	public boolean needsRescheduling() {
@@ -74,7 +68,7 @@ public class StartBuild extends BuildStep<StartBuild> implements HttpBasedStep{
 
 	@Override
 	public void perform() throws Exception {
-		requestExecutor.execute(client, method);
+		RequestExecutor.getInstance().execute(client, method);
 	}
 
 	@Override

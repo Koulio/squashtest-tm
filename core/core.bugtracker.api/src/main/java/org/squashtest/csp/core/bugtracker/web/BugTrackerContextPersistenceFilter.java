@@ -20,23 +20,22 @@
  */
 package org.squashtest.csp.core.bugtracker.web;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.filter.OncePerRequestFilter;
+import org.squashtest.csp.core.bugtracker.service.BugTrackerContext;
+import org.squashtest.csp.core.bugtracker.service.BugTrackerContextHolder;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.squashtest.csp.core.bugtracker.service.BugTrackerContext;
-import org.squashtest.csp.core.bugtracker.service.BugTrackerContextHolder;
 
 /**
  * This filter is responsible for retrieving the {@link BugTrackerContext}, making it available to the current
@@ -47,7 +46,7 @@ import org.squashtest.csp.core.bugtracker.service.BugTrackerContextHolder;
  * @author Gregory Fouquet
  *
  */
-public final class BugTrackerContextPersistenceFilter implements Filter {
+public final class BugTrackerContextPersistenceFilter extends OncePerRequestFilter {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BugTrackerContextPersistenceFilter.class);
 	/**
 	 * Key used do store BT context in http session.
@@ -57,19 +56,15 @@ public final class BugTrackerContextPersistenceFilter implements Filter {
 	private BugTrackerContextHolder contextHolder;
 	private String excludePatterns;
 
-	@Override
-	public void init(FilterConfig filterConfig) throws ServletException {
-	   //NOP
-	}
-
 	/**
 	 * This callback method will try to load a previously existing {@link BugTrackerContext}, expose it to the current
 	 * thread through {@link BugTrackerContextHolder} and store it after filter chain processing.
 	 */
 	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
-			ServletException {
-	    String url = ((HttpServletRequest) request).getPathInfo();
+	public void doFilterInternal(
+		HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+		throws ServletException, IOException {
+	    String url = request.getServletPath() + StringUtils.defaultString(request.getPathInfo());
         if (!matchExcludePatterns(url)) {
 		BugTrackerContext context = loadContext(request);
 
@@ -84,18 +79,17 @@ public final class BugTrackerContextPersistenceFilter implements Filter {
         }
 	}
 
-	private boolean matchExcludePatterns(String url) {
-	       
-        boolean result= false;
-        if (excludePatterns != null){
-            Pattern p = Pattern.compile(excludePatterns);
-            Matcher m = p.matcher(url);
-            result = m.matches();
-        }
-   
-        return result;
+	   private boolean matchExcludePatterns(String url) {
+
+	        boolean result= false;
+	        if (excludePatterns != null){
+	            Pattern p = Pattern.compile(excludePatterns);
+	            Matcher m = p.matcher(url);
+	            result = m.matches();
+	        }
+
+	        return result;
 	}
-	
 	private void storeContextInExistingSession(ServletRequest request, BugTrackerContext context) {
 		HttpSession session = ((HttpServletRequest) request).getSession(false);
 
@@ -126,17 +120,12 @@ public final class BugTrackerContextPersistenceFilter implements Filter {
 			context = new BugTrackerContext();
 			storeContext(session, context);
 		}
-		
+
 		if (LOGGER.isTraceEnabled()){
 			LOGGER.trace("BugTrackerContextPersistentFilter : loading context for session #{} with btcontext #{}", session.getId(),context.toString());
 		}
 
 		return context;
-	}
-
-	@Override
-	public void destroy() {
-		// NOOP
 	}
 
 	public void setContextHolder(BugTrackerContextHolder contextHolder) {
@@ -146,5 +135,5 @@ public final class BugTrackerContextPersistenceFilter implements Filter {
     public void setExcludePatterns(String excludePatterns) {
         this.excludePatterns = excludePatterns;
     }
-	
+
 }

@@ -20,29 +20,8 @@
  */
 package org.squashtest.tm.domain.resource;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
 import org.hibernate.annotations.Type;
-import org.hibernate.search.annotations.Analyze;
-import org.hibernate.search.annotations.DocumentId;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FieldBridge;
-import org.hibernate.search.annotations.Fields;
-import org.hibernate.search.annotations.Store;
+import org.hibernate.search.annotations.*;
 import org.hibernate.validator.constraints.NotBlank;
 import org.squashtest.tm.domain.Identified;
 import org.squashtest.tm.domain.attachment.AttachmentHolder;
@@ -51,20 +30,22 @@ import org.squashtest.tm.domain.audit.Auditable;
 import org.squashtest.tm.domain.requirement.RequirementLibraryNode;
 import org.squashtest.tm.domain.search.UpperCasedStringBridge;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 /**
  * A Resource is the actual "things" which are organized in a library tree.
- * 
+ *
  * @author Gregory Fouquet
- * 
+ *
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @Auditable
-public abstract class Resource implements AttachmentHolder, Identified{
+public abstract class Resource implements AttachmentHolder, Identified {
 	@Id
 	@Column(name = "RES_ID")
-	@DocumentId
-	@Field
 	@GeneratedValue(strategy = GenerationType.AUTO, generator = "resource_res_id_seq")
 	@SequenceGenerator(name = "resource_res_id_seq", sequenceName = "resource_res_id_seq")
 	private Long id;
@@ -73,26 +54,26 @@ public abstract class Resource implements AttachmentHolder, Identified{
 	@Size(min = 0, max = RequirementLibraryNode.MAX_NAME_SIZE)
 	@Fields({
 		@Field,
-		@Field(name="label", analyze=Analyze.NO, store=Store.YES),
+		@Field(name = "label", analyze = Analyze.NO, store = Store.YES),
 		@Field(
-				name="labelUpperCased",
-				analyze=Analyze.NO,
-				store=Store.YES,
-				bridge=@FieldBridge(impl = UpperCasedStringBridge.class)
-				),
+			name = "labelUpperCased",
+			analyze = Analyze.NO,
+			store = Store.YES,
+			bridge = @FieldBridge(impl = UpperCasedStringBridge.class)
+		),
 	})
 	private String name;
 
 	@Lob
-	@Type(type="org.hibernate.type.StringClobType")
+	@Type(type = "org.hibernate.type.StringClobType")
 	@Fields({
 		@Field(),
 		@Field(
-				name="hasDescription",
-				analyze=Analyze.NO,
-				store=Store.YES,
-				bridge=@FieldBridge(impl = RequirementVersionDescriptionBridge.class)
-				),
+			name = "hasDescription",
+			analyze = Analyze.NO,
+			store = Store.YES,
+			bridge = @FieldBridge(impl = RequirementVersionDescriptionBridge.class)
+		),
 
 	})
 	private String description;
@@ -122,6 +103,7 @@ public abstract class Resource implements AttachmentHolder, Identified{
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
 	/**
 	 * @see org.squashtest.tm.domain.attachment.AttachmentHolder#getAttachmentList()
 	 */
@@ -131,16 +113,15 @@ public abstract class Resource implements AttachmentHolder, Identified{
 	}
 
 
-
 	// ******************* other utilities ****************************
 
 	/*
 	 * Issue 1713
-	 * 
+	 *
 	 * Due to the mixed use of actual instances and javassist proxies, comparisons may fail. Thus the
 	 * redefinition of hashCode() and equals() below, that take account of the lazy loading and
 	 * the fact that the compared objects may be of different classes.
-	 * 
+	 *
 	 */
 
 	@Override
@@ -148,9 +129,9 @@ public abstract class Resource implements AttachmentHolder, Identified{
 		final int prime = 61;
 		int result = 97;
 		result = prime * result
-				+ ((getAttachmentList() == null) ? 0 : getAttachmentList().hashCode());
+			+ ((getAttachmentList() == null) ? 0 : getAttachmentList().hashCode());
 		result = prime * result
-				+ ((getDescription() == null) ? 0 : getDescription().hashCode());
+			+ ((getDescription() == null) ? 0 : getDescription().hashCode());
 		result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
 		result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
 		return result;
@@ -164,7 +145,7 @@ public abstract class Resource implements AttachmentHolder, Identified{
 		if (obj == null) {
 			return false;
 		}
-		if (! ( this.getClass().isAssignableFrom(obj.getClass()) || obj.getClass().isAssignableFrom(getClass()) )) {
+		if (!(this.getClass().isAssignableFrom(obj.getClass()) || obj.getClass().isAssignableFrom(getClass()))) {
 			return false;
 		}
 		Resource other = (Resource) obj;
@@ -198,8 +179,6 @@ public abstract class Resource implements AttachmentHolder, Identified{
 		}
 		return true;
 	} // GENERATED:END
-
-
 
 
 }

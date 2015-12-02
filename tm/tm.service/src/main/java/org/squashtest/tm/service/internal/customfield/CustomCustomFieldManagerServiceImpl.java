@@ -27,7 +27,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -49,6 +49,8 @@ import org.squashtest.tm.service.customfield.CustomFieldBindingModificationServi
 import org.squashtest.tm.service.internal.repository.CustomFieldBindingDao;
 import org.squashtest.tm.service.internal.repository.CustomFieldDao;
 import org.squashtest.tm.service.internal.repository.CustomFieldValueDao;
+
+import static org.squashtest.tm.service.security.Authorizations.*;
 
 /**
  * Implementations for (non dynamically generated) custom-field management services.

@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.squashtest.tm</groupId>
     <artifactId>squash-tm</artifactId>
-    <version>1.13.0.IT103-SNAPSHOT</version>
+    <version>1.13.0.NOSGI-SNAPSHOT</version>
   </parent>
 
   <artifactId>squashtest-integration-tests</artifactId>
   <packaging>pom</packaging>
-  <name>Squashtest TM - Integration tests module</name>
+  <name>squash-tm-integration-tests</name>
+  <description>Squashtest TM - Integration tests module</description>
 
   <properties>
-
     <database.changelog>../database/src/main/liquibase/global.changelog-master.xml</database.changelog>
     <database.dialect>h2</database.dialect>
     <database.drivername>org.h2.Driver</database.drivername>
@@ -20,24 +21,26 @@
     <database.schemaName>public</database.schemaName>
     <database.typefactory>org.dbunit.ext.h2.H2DataTypeFactory</database.typefactory>
     <database.username>sa</database.username>
-    <!-- On Jenkins server these relative paths are not interpreted in the same way by liquibase and the datasource. These 
+    <!-- On Jenkins server these relative paths are not interpreted in the same way by liquibase and the datasource. These
       props should be overridden with absolute paths (which don't work under windows...) -->
-    <dbunit-database.url>jdbc:h2:target/database/squash-it-dbunit/squash-it</dbunit-database.url>
+    <dbunit-database.url>jdbc:h2:${project.build.directory}/database/squash-it-dbunit/squash-it
+    </dbunit-database.url>
 
     <hibernate.dialect>org.hibernate.dialect.H2Dialect</hibernate.dialect>
     <hibernate.sql.formatted>false</hibernate.sql.formatted>
 
     <hibernate.sql.verbosity>INFO</hibernate.sql.verbosity>
-    <non-dbunit-database.url>jdbc:h2:target/database/squash-it-non-dbunit/squash-it</non-dbunit-database.url>
+    <non-dbunit-database.url>jdbc:h2:${project.build.directory}/database/squash-it-non-dbunit/squash-it
+    </non-dbunit-database.url>
     <squashtest.rootDir>${project.build.directory}</squashtest.rootDir>
   </properties>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.squashtest.tm</groupId>
-        <artifactId>provision-bom</artifactId>
-        <version>${provisionBom.version}</version>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>squash-tm-bom</artifactId>
+        <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -45,155 +48,68 @@
   </dependencyManagement>
 
   <dependencies>
-    <!-- ====== JTA ====== -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
 
-    <!-- ====== JSE DI API ====== -->
-    <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>com.springsource.javax.inject</artifactId>
-    </dependency>
-    <!-- ====== /FOUNDATION ====== -->
-
-    <!-- ====== JTA ====== -->
-    <dependency>
-      <groupId>javax.transaction</groupId>
-      <artifactId>com.springsource.javax.transaction</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.aopalliance</groupId>
-      <artifactId>com.springsource.org.aopalliance</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.squashtest.tm</groupId>
       <artifactId>core.aspect</artifactId>
       <version>${project.version}</version>
+      <scope>test</scope>
     </dependency>
-    <!-- ====== /JSE DI API ====== -->
 
     <dependency>
       <groupId>org.squashtest.tm</groupId>
       <artifactId>database.h2.fragment</artifactId>
       <version>${project.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>org.springframework.aop</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>org.springframework.aspects</artifactId>
-    </dependency>
-
-    <!-- ====== SPRING INTEGRATION TEST SUPPORT ====== -->
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>org.springframework.test</artifactId>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <!-- ====== SPOCK-SPRING-TEST BRIDGE ====== -->
-    <dependency>
-      <groupId>org.spockframework</groupId>
-      <artifactId>spock-spring</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.spockframework</groupId>
-      <artifactId>spock-unitils</artifactId>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>com.mysql.jdbc</groupId>
-      <artifactId>com.springsource.com.mysql.jdbc</artifactId>
-      <scope>runtime</scope>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
     </dependency>
 
-    <!-- ====== /SPRING ====== -->
-
-    <!-- ====== DB AND CONNECTION POOL ====== -->
     <dependency>
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
       <scope>runtime</scope>
     </dependency>
-    <!-- ====== FOUNDATION ====== -->
+
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-      <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.ancoron.postgresql</groupId>
-      <artifactId>org.postgresql</artifactId>
-      <scope>runtime</scope>
+      <groupId>postgresql</groupId>
+      <artifactId>postgresql</artifactId>
     </dependency>
-    <!-- ====== /SPRING INTEGRATION TEST SUPPORT ====== -->
 
-    <!-- ====== SPRING FRAMEWORK ====== -->
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>org.springframework.transaction</artifactId>
-      <scope>runtime</scope>
-    </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>core.testautomation.api</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.dbunit</groupId>
-      <artifactId>dbunit</artifactId>
-      <version>2.2.2</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-lang</groupId>
-          <artifactId>commons-lang</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-nop</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>poi</groupId>
-          <artifactId>poi</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <!-- ====== /SPOCK TESTS SUPPORT ====== -->
 
-    <!-- ====== HIBERNATE SUPPORT ====== -->
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>hibernate-dependencies</artifactId>
-      <version>${project.version}</version>
-      <type>pom</type>
-      <scope>test</scope>
-    </dependency>
-    <!-- ====== /SPRING FRAMEWORK ====== -->
 
-    <!-- ====== SPRING ====== -->
     <dependency>
       <groupId>org.springframework</groupId>
-      <artifactId>org.springframework.expression</artifactId>
+      <artifactId>spring-expression</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -202,25 +118,21 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-    <!-- ====== /SQUASHTEST ====== -->
-
-    <!-- ====== SPOCK TESTS SUPPORT ====== -->
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>spock-test-dependencies</artifactId>
       <version>${project.version}</version>
       <type>pom</type>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- ====== /HIBERNATE SUPPORT ====== -->
 
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>springdm-bundle-dependencies</artifactId>
-      <version>${project.version}</version>
-      <type>pom</type>
-      <scope>test</scope>
-    </dependency>
     <!-- ====== SQUASHTEST ====== -->
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -237,102 +149,6 @@
     </dependency>
     <!-- ====== /SPOCK-SPRING-TEST BRIDGE ====== -->
 
-    <dependency>
-      <groupId>org.unitils</groupId>
-      <artifactId>unitils-core</artifactId>
-      <version>3.1</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-lang</groupId>
-          <artifactId>commons-lang</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-nop</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.unitils</groupId>
-      <artifactId>unitils-database</artifactId>
-      <version>3.1</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-lang</groupId>
-          <artifactId>commons-lang</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-nop</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.unitils</groupId>
-      <artifactId>unitils-dbunit</artifactId>
-      <version>3.1</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-lang</groupId>
-          <artifactId>commons-lang</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-nop</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.unitils</groupId>
-      <artifactId>unitils-spring</artifactId>
-      <version>3.1</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-lang</groupId>
-          <artifactId>commons-lang</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-nop</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
   </dependencies>
 
   <build>
@@ -391,6 +207,9 @@
               <goal>testCompile</goal>
             </goals>
             <phase>pre-integration-test</phase>
+            <configuration>
+              <compilerId>groovy-eclipse-compiler</compilerId>
+            </configuration>
           </execution>
         </executions>
       </plugin>
@@ -411,6 +230,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.5</version>
         <executions>
           <!-- Adds more source directories to the pom -->
           <execution>
@@ -431,10 +251,8 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>2.14</version>
         <configuration>
-          <parallel>false</parallel>
-          <threadCount>1</threadCount>
+          <!--<threadCount>1</threadCount>-->
           <!-- We can run ITs and skip unit tests with -DskipTests=true -->
           <skipTests>${skipITs}</skipTests>
         </configuration>
@@ -463,7 +281,6 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
   </build>
 
@@ -494,10 +311,12 @@
       </activation>
 
       <properties>
-        <!-- On Jenkins server these relative paths are not interpreted in the same way by liquibase and the datasource. These 
+        <!-- On Jenkins server these relative paths are not interpreted in the same way by liquibase and the datasource. These
       props should be overridden with absolute paths (which don't work under windows...) -->
-        <dbunit-database.url>jdbc:h2:target/database/squash-it-dbunit/squash-it</dbunit-database.url>
-        <non-dbunit-database.url>jdbc:h2:target/database/squash-it-non-dbunit/squash-it</non-dbunit-database.url>
+        <dbunit-database.url>jdbc:h2:./target/database/squash-it-dbunit/squash-it
+        </dbunit-database.url>
+        <non-dbunit-database.url>jdbc:h2:./target/database/squash-it-non-dbunit/squash-it
+        </non-dbunit-database.url>
       </properties>
     </profile>
 
@@ -510,10 +329,11 @@
       </activation>
 
       <properties>
-        <!-- On Jenkins server these relative paths are not interpreted in the same way by liquibase and the datasource. These 
+        <!-- On Jenkins server these relative paths are not interpreted in the same way by liquibase and the datasource. These
       props should be overridden with absolute paths (which don't work under windows...) -->
         <dbunit-database.url>jdbc:h2:${project.basedir}/target/database/squash-it-dbunit</dbunit-database.url>
-        <non-dbunit-database.url>jdbc:h2:${project.basedir}/target/database/squash-it-non-dbunit</non-dbunit-database.url>
+        <non-dbunit-database.url>jdbc:h2:${project.basedir}/target/database/squash-it-non-dbunit
+        </non-dbunit-database.url>
       </properties>
     </profile>
 
@@ -578,7 +398,7 @@
         <database.typefactory>org.dbunit.ext.postgresql.PostgresqlDataTypeFactory</database.typefactory>
         <database.username>${it.database.username}</database.username>
         <dbunit-database.url>${it.database.url}</dbunit-database.url>
-        <hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</hibernate.dialect>
+        <hibernate.dialect>org.hibernate.dialect.PostgreSQL9Dialect</hibernate.dialect>
         <non-dbunit-database.url>${it.legacy.database.url}</non-dbunit-database.url>
       </properties>
 
@@ -623,7 +443,7 @@
     </profile>
 
     <profile>
-      <id>database.nocreate</id>
+      <id>create-database</id>
       <activation>
         <property>
           <name>!database.nocreate</name>
@@ -637,9 +457,9 @@
             <artifactId>aspectj-maven-plugin</artifactId>
             <configuration>
               <showWeaveInfo>${verbose.compiler}</showWeaveInfo>
-              <source>${jdk.version}</source>
-              <target>${jdk.version}</target>
-              <complianceLevel>${jdk.version}</complianceLevel>
+              <source>${java.version}</source>
+              <target>${java.version}</target>
+              <complianceLevel>${java.version}</complianceLevel>
               <aspectLibraries>
                 <aspectLibrary>
                   <!-- For @Configurable. Not sure we need it in this module -->

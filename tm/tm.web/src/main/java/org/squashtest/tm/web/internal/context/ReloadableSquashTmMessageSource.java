@@ -20,30 +20,32 @@
  */
 package org.squashtest.tm.web.internal.context;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import org.squashtest.tm.api.config.SquashPathProperties;
+
+import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * This specialization of {@link ReloadableResourceBundleMessageSource} registers <strong>message.properties</strong>
  * files from fragments looking up into standardized folders "/WEB-INF/messages/<wizard-name>/"
- * 
+ *
  * @author Gregory Fouquet
- * 
  */
 public class ReloadableSquashTmMessageSource extends ReloadableResourceBundleMessageSource implements
-		ResourceLoaderAware, InitializingBean {
+	ResourceLoaderAware {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReloadableSquashTmMessageSource.class);
 	/**
 	 * Resource pattern to scan for messages embedded into plugins / fragments
@@ -55,6 +57,7 @@ public class ReloadableSquashTmMessageSource extends ReloadableResourceBundleMes
 	private static final String MESSAGES_BASE_PATH = "/WEB-INF/messages/";
 	private ResourcePatternResolver resourcePatternResolver;
 	private String[] basenames;
+	private SquashPathProperties squashPathProperties;
 
 	/**
 	 * @see org.springframework.context.support.ReloadableResourceBundleMessageSource#setResourceLoader(org.springframework.core.io.ResourceLoader)
@@ -78,9 +81,13 @@ public class ReloadableSquashTmMessageSource extends ReloadableResourceBundleMes
 		super.setBasenames(basenames);
 	}
 
-	private void registerFragmentMessageProperties() {
+	@PostConstruct
+	public void registerFragmentMessageProperties() {
 		try {
-			Set<String> consolidatedBasenames = new LinkedHashSet<String>();
+			Set<String> consolidatedBasenames = new LinkedHashSet<>();
+
+			LOGGER.debug("About to scan for external language pack basenames to build MessageSource");
+			addExternalBasenames(consolidatedBasenames);
 
 			LOGGER.debug("About to register configured basenames to build MessageSource");
 			addConfiguredBasenames(consolidatedBasenames);
@@ -90,23 +97,77 @@ public class ReloadableSquashTmMessageSource extends ReloadableResourceBundleMes
 			LOGGER.debug("About to scan {} for additional fragment / plugin basenames", PLUGIN_MESSAGES_SCAN_PATTERN);
 			addLookedUpBasenames(consolidatedBasenames);
 
-			super.setBasenames(consolidatedBasenames.toArray(new String[] {}));
+			LOGGER.debug("About to scan classpath for plugin language packs to build MessageSource");
+			addPluginBasenames(consolidatedBasenames);
+
+			super.setBasenames(consolidatedBasenames.toArray(new String[consolidatedBasenames.size()]));
 		} catch (IOException e) {
-			LOGGER.warn("Error during bean initialization, no fragment messages will be registered.", e);
+			LOGGER.warn("Error during message source initialization, some messages may not be properly translated.", e);
 		}
 	}
 
-	private void addLookedUpBasenames(Set<String> consolidatedBasenames) throws IOException {
-		Resource[] resources = resourcePatternResolver.getResources(PLUGIN_MESSAGES_SCAN_PATTERN);
+	private void addPluginBasenames(Set<String> consolidatedBasenames) throws IOException {
+		Resource[] resources = resourcePatternResolver.getResources("classpath*:org/squashtest/tm/plugin/**/messages.properties");
 
 		for (Resource resource : resources) {
-			if (isFirstLevelDirectory(resource)) {
-				String basename = MESSAGES_BASE_PATH + resource.getFilename() + "/messages";
-				consolidatedBasenames.add(basename);
+			try {
+				if (resource.exists()) {
+					// resource path is external-path/jar-name.jar!/internal-path/messages.properties
+					String path = resource.getURL().getPath();
+					int bang = path.lastIndexOf('!');
+					String basename = "classpath:" + StringUtils.removeEnd(path.substring(bang + 2), ".properties");
+					consolidatedBasenames.add(basename);
 
-				LOGGER.info("Registering *discovered* path {} as a basename for application MessageSource", basename);
+					LOGGER.info("Registering *discovered* plugin classpath path {} as a basename for application MessageSource", basename);
+				}
+
+			} catch (IOException e) {
+				LOGGER.info("An IO error occurred while looking up plugin language resources '{}': {}", resource, e.getMessage());
+				LOGGER.debug("Plugin language resources lookup error for resource {}", resource, e);
 			}
+		}
+	}
 
+	private void addExternalBasenames(Set<String> consolidatedBasenames) {
+		String locationPattern = squashPathProperties.getLanguagesPath() + "/**/messages.properties";
+		if (!locationPattern.startsWith("file:")) {
+			locationPattern = "file:" + locationPattern;
+		}
+
+		try {
+			Resource[] resources = resourcePatternResolver.getResources(locationPattern);
+
+			for (Resource resource : resources) {
+				if (resource.exists()) {
+					String basename = StringUtils.removeEnd(resource.getURL().getPath(), ".properties");
+					consolidatedBasenames.add(basename);
+
+					LOGGER.info("Registering *discovered* external path {} as a basename for application MessageSource", basename);
+				}
+
+			}
+		} catch (IOException e) {
+			LOGGER.info("An IO error occurred while looking up external language resources '{}' : {}", locationPattern, e.getMessage());
+			LOGGER.debug("External language lookup error. Current path : {}", new File(".").toString(), e);
+		}
+	}
+
+	private void addLookedUpBasenames(Set<String> consolidatedBasenames) {
+		try {
+			Resource[] resources = resourcePatternResolver.getResources(PLUGIN_MESSAGES_SCAN_PATTERN);
+
+			for (Resource resource : resources) {
+				if (isFirstLevelDirectory(resource)) {
+					String basename = MESSAGES_BASE_PATH + resource.getFilename() + "/messages";
+					consolidatedBasenames.add(basename);
+
+					LOGGER.info("Registering *discovered* path {} as a basename for application MessageSource", basename);
+
+				}
+
+			}
+		} catch (IOException e) {
+			LOGGER.info("Error during bean initialization, no fragment messages will be registered. Maybe there are no fragments.", e);
 		}
 	}
 
@@ -129,12 +190,7 @@ public class ReloadableSquashTmMessageSource extends ReloadableResourceBundleMes
 		return url.getPath().endsWith(MESSAGES_BASE_PATH + resource.getFilename() + '/');
 	}
 
-	/**
-	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
-	 */
-	@Override
-	public final void afterPropertiesSet() {
-		registerFragmentMessageProperties();
-		
+	public void setSquashPathProperties(SquashPathProperties squashPathProperties) {
+		this.squashPathProperties = squashPathProperties;
 	}
 }

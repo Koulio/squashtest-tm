@@ -127,7 +127,7 @@ IterationTestPlanManager {
 	private Provider<PasteStrategy<Iteration, TestSuite>> pasteToIterationStrategyProvider;
 
 	@Inject
-	private ObjectFactory<TreeNodeCopier> treeNodeCopierFactory;
+	private Provider<TreeNodeCopier> treeNodeCopierFactory;
 
 	@Override
 	@PreventConcurrent(entityType = Campaign.class)

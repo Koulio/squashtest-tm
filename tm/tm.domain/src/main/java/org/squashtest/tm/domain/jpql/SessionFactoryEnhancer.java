@@ -20,14 +20,14 @@
  */
 package org.squashtest.tm.domain.jpql;
 
-import java.util.List;
-
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
+
+import java.util.List;
 
 
 // TODO : move in there the group concat functions, and maybe share them with QueryDSL ?
@@ -37,15 +37,15 @@ import org.hibernate.type.Type;
  * 	This class defines some extensions to JPQL language, that must be registered in the HibernateSessionFactory,
  * 	and can also be used in QueryDSL if needed.
  * </p>
- * 
+ *
  * <h4>group_concat</h4>
- * 
+ *
  * <p>
  * 	This section factory declares a custom function for the support of group_concat - which is not a JPQL standard function.
  * 	The implementation for this custom function depends on the target database. See GroupConcatFunction for h2 and mysql,
  * 	StringAggFunction for Postgre
  * </p>
- * 
+ *
  * <p>
  * 	Syntax is as follow :
  *  <ul>
@@ -53,21 +53,21 @@ import org.hibernate.type.Type;
  *  	<li><pre>group_concat(<it>col identifier 1</it>, 'order by', <it>col identifier 2</it>, ['asc|desc']) </pre>will send this to the target db as 'group_concat(id1 order by id2 [asc|desc])'
  *  </ul>
  * </p>
- * 
+ *
  * 	<h4>Aggregate function wrappers</h4>
- * 
+ *
  *  <p>
  * 	The standard aggregate functions : count, sum, avg, min and max, used in a JPA query, cannot apply on subqueries.
  * 	For instance one cannot sum((select id from entity)). The antlr parser used by Hibernate will just dismiss such nodes
  * 	although the would-be SQL would run just fine on the target database.
  * </p>
- * 
+ *
  * <p>By chance custom sql function can do so. So, by registering the standard aggregate functions as custom functions we
  * can trick Hibernate parser into thinking that the jpa item it reads is a custom function while it will just really print
  * a regular function in the sql output, and so offer us free support for aggregate over subqueries.</p>
- * 
+ *
  * <p>The function names are :
- * 
+ *
  * <ul>
  * 	<li>'s_avg',</li>
  * 	<li>'s_sum',</li>
@@ -75,13 +75,13 @@ import org.hibernate.type.Type;
  * 	<li>'s_max',</li>
  * 	<li>'s_count',</li>
  * </ul>
- * 
+ *
  * Those wrapper use distinct names so that the native aggregate functions are not overridden : depending on you needs
  * you may use the regular 'count', or the corresponding wrapper 's_count'.</p>
  * @author bsiri
  *
  */
-public class SessionFactoryEnhancer{
+public class SessionFactoryEnhancer {
 
 	public static final String FN_NAME_GROUP_CONCAT = "group_concat";
 
@@ -92,7 +92,7 @@ public class SessionFactoryEnhancer{
 	public static final String FN_NAME_MAX = "s_max";
 	public static final String FN_NAME_AVG = "s_avg";
 
-	public static enum FnSupport{
+	public static enum FnSupport {
 		GROUP_CONCAT,
 		STR_AGG
 	}
@@ -101,7 +101,7 @@ public class SessionFactoryEnhancer{
 	 * API for Hibernate SessionFactory
 	 * ************************************************/
 
-	public static void registerExtensions(Configuration hibConfig, FnSupport... fnSupports){
+	public static void registerExtensions(Configuration hibConfig, FnSupport... fnSupports) {
 
 		// aggregate function wrappers
 		hibConfig.addSqlFunction(FN_NAME_SUM, new StandardSQLFunction("sum"));
@@ -114,14 +114,14 @@ public class SessionFactoryEnhancer{
 
 
 		// database-specific functions
-		for (FnSupport support : fnSupports){
-			switch(support){
-			case GROUP_CONCAT :
-				hibConfig.addSqlFunction(FN_NAME_GROUP_CONCAT, new GroupConcatFunction(FN_NAME_GROUP_CONCAT, StringType.INSTANCE));
-				break;
-			case STR_AGG :
-				hibConfig.addSqlFunction(FN_NAME_GROUP_CONCAT, new StringAggFunction(FN_NAME_GROUP_CONCAT, StringType.INSTANCE));
-				break;
+		for (FnSupport support : fnSupports) {
+			switch (support) {
+				case GROUP_CONCAT:
+					hibConfig.addSqlFunction(FN_NAME_GROUP_CONCAT, new GroupConcatFunction(FN_NAME_GROUP_CONCAT, StringType.INSTANCE));
+					break;
+				case STR_AGG:
+					hibConfig.addSqlFunction(FN_NAME_GROUP_CONCAT, new StringAggFunction(FN_NAME_GROUP_CONCAT, StringType.INSTANCE));
+					break;
 			}
 		}
 
@@ -132,15 +132,15 @@ public class SessionFactoryEnhancer{
 	 *  Inner classes
 	 * *************************************************/
 
-	private static class SCountDistinctFunction extends StandardSQLFunction{
+	private static class SCountDistinctFunction extends StandardSQLFunction {
 
-		SCountDistinctFunction(){
+		SCountDistinctFunction() {
 			super("count", LongType.INSTANCE);
 		}
 
 		@Override
 		public final String render(Type firstArgumentType, List arguments, SessionFactoryImplementor sessionFactory) {
-			return "count(distinct "+arguments.get(0)+" )";
+			return "count(distinct " + arguments.get(0) + " )";
 		}
 
 
@@ -149,17 +149,17 @@ public class SessionFactoryEnhancer{
 	/**
 	 * <p>This custom implementation of group_concat. Because it can contain an embedded expression, hibernate will try to parse it just as if
 	 * it was within the scope of the main query - thus causing parsing exception.</p>
-	 * 
+	 *
 	 *  <p>To prevent this we had to make the awkward syntax as follow:</p>
-	 * 
+	 *
 	 *  <ul>
 	 *  	<li>group_concat(<it>col identifier</it>) : will concatenate as expected over the column identifier.</li>
 	 *  	<li>group_concat(<it>col identifier 1</it>, 'order by', <it>col identifier 2</it>, ['asc|desc']) : will send this to the target db as 'group_concat(id1 order by id2 [asc|desc])'
 	 *  </ul>
-	 * 
-	 * 
-	 * 
-	 * 
+	 *
+	 *
+	 *
+	 *
 	 * @author bsiri
 	 *
 	 */
@@ -176,26 +176,23 @@ public class SessionFactoryEnhancer{
 		@Override
 		public final String render(Type firstArgumentType, List arguments, SessionFactoryImplementor sessionFactory) {
 
-			if (arguments.size()==1){
+			if (arguments.size() == 1) {
 				return super.render(firstArgumentType, arguments, sessionFactory);
-			}
-
-			else{
-				try{
+			} else {
+				try {
 					// validation
-					String direction = (arguments.size()>=4) ? ((String)arguments.get(3)).replaceAll("'", "") : "asc";
-					String separator = (arguments.size()>=5) ? ((String)arguments.get(4)).replaceAll("'", "") : ",";
-					if (! (direction.equalsIgnoreCase("asc") || direction.equalsIgnoreCase("desc") )){
+					String direction = (arguments.size() >= 4) ? ((String) arguments.get(3)).replaceAll("'", "") : "asc";
+					String separator = (arguments.size() >= 5) ? ((String) arguments.get(4)).replaceAll("'", "") : ",";
+					if (!(direction.equalsIgnoreCase("asc") || direction.equalsIgnoreCase("desc"))) {
 						throw new IllegalArgumentException();
 					}
-					if (! ((String)arguments.get(1)).equalsIgnoreCase("'order by'")){
+					if (!((String) arguments.get(1)).equalsIgnoreCase("'order by'")) {
 						throw new IllegalArgumentException();
 					}
 
 					// expression
 					return createSqlQuery(arguments, direction, separator);
-				}
-				catch(IllegalArgumentException ex){
+				} catch (IllegalArgumentException ex) {
 					throw new IllegalArgumentException("usage of custom hql group_concat : group_concat(col id, [ 'order by', col id2, ['asc|desc']]", ex);
 				}
 			}
@@ -203,14 +200,14 @@ public class SessionFactoryEnhancer{
 		}
 
 		protected String createSqlQuery(List<?> arguments, String direction, String separator) {
-			return "group_concat("+arguments.get(0)+" order by "+arguments.get(2)+" "+direction+" separator '"+separator+"')";
+			return "group_concat(" + arguments.get(0) + " order by " + arguments.get(2) + " " + direction + " separator '" + separator + "')";
 		}
 
 	}
 
 	/**
 	 * Equivalent of GroupConcatFunction for Postgresql
-	 * 
+	 *
 	 */
 	private static final class StringAggFunction extends GroupConcatFunction {
 
@@ -225,7 +222,7 @@ public class SessionFactoryEnhancer{
 		@Override
 		public String createSqlQuery(List<?> arguments, String direction, String separator) {
 			return "string_agg( cast(" + arguments.get(0) + " as text),'" + separator + "' order by " + arguments.get(2)
-					+ " " + direction + ")";
+				+ " " + direction + ")";
 		}
 	}
 

@@ -21,25 +21,47 @@
 package org.squashtest.tm.web.internal.model.builder
 
 import org.squashtest.tm.domain.Identified
-import org.squashtest.tm.web.internal.controller.generic.NodeBuildingSpecification
+import org.squashtest.tm.service.security.PermissionEvaluationService
 import org.squashtest.tm.web.internal.model.jstree.JsTreeNode
+import org.squashtest.tm.web.internal.controller.generic.NodeBuildingSpecification
 
 class JsTreeNodeListBuilderTest extends NodeBuildingSpecification {
 	def "should build list of tree nodes"() {
 		given:
-        DummyBuilder nodeBuilder = new DummyBuilder(permissionEvaluator())
+		PermissionEvaluationService permEvaluator = Mock()
+		Map<String, Boolean> perms = Mock()
+		perms.get(_) >> false
+		permEvaluator._ >> perms
+		
+		and:
+		DummyBuilder nodeBuilder = new DummyBuilder(permEvaluator)
 		JsTreeNodeListBuilder listBuilder = new JsTreeNodeListBuilder(nodeBuilder)
 
 
 		when:
-        def nodes = listBuilder.setModel([new Dummy(title: "foo"), new Dummy(title: "bar")]).build()
+		def nodes = listBuilder.setModel([dummy("foo"), dummy("bar")]).build()
+
 
 		then:
 		nodes*.title == ["foo", "bar"]
 	}
+
+	private Dummy dummy(title) {
+		new Dummy(title: title)
+	}
+}
+
+class Dummy implements Identified {
+	public String title
+	@Override
+	Long getId() {
+		return 1
+	}
 }
 
 class DummyBuilder extends GenericJsTreeNodeBuilder<Dummy, DummyBuilder> {
+	String title
+
 	def DummyBuilder(pes) {
 		super(pes)
 	}
@@ -53,19 +75,10 @@ class DummyBuilder extends GenericJsTreeNodeBuilder<Dummy, DummyBuilder> {
 	/**
 	 * @see org.squashtest.tm.web.internal.model.builder.JsTreeNodeBuilder#doAddChildren(org.squashtest.tm.web.internal.model.jstree.JsTreeNode, java.lang.Object)
 	 */
-    @SuppressWarnings("GroovyDocCheck")
 	@Override
 	protected void doAddChildren(JsTreeNode node, Dummy model) {
-		// TODO Auto-generated method stub
+		// NOOP
 
 	}
-}
 
-class Dummy implements Identified {
-    String title
-
-    @Override
-    Long getId() {
-        return 1
-    }
 }

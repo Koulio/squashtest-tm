@@ -21,36 +21,37 @@
 package org.squashtest.tm.internal.service;
 
 
-import org.springframework.osgi.extensions.annotation.ServiceReference;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.squashtest.tm.domain.project.ProjectResource;
 import org.squashtest.tm.domain.projectfilter.ProjectFilter;
 import org.squashtest.tm.plugin.report.std.service.DataFilteringService;
 import org.squashtest.tm.service.project.ProjectFilterModificationService;
 import org.squashtest.tm.service.security.PermissionEvaluationService;
 
+import javax.inject.Inject;
+
 
 @Service("squashtest.tm.service.DataFilteringService")
+@Transactional(readOnly = true)
 public class DataFilteringServiceImpl implements DataFilteringService {
+	@Inject
 	private PermissionEvaluationService permissionService;
-	
+
+	@Inject
 	private ProjectFilterModificationService userFilterService;
-	
-	@ServiceReference
-	public void setPermissionEvaluationService(PermissionEvaluationService service){
-		this.permissionService = service;
-	}
-	
+
 	@Override
 	public boolean isFullyAllowed(Object object) {
-		return hasReadPermissions(object) 
-		&& (object instanceof ProjectResource ? 
-				isAllowedByUser((ProjectResource)object) 
-				: true //will prolly change that later.
-			);
+		return hasReadPermissions(object)
+			// TODO extract methot out of that crap so its understandable
+			&& (object instanceof ProjectResource ?
+			isAllowedByUser((ProjectResource) object)
+			: true //will prolly change that later.
+		);
 	}
-	
-	
+
+
 	@Override
 	public boolean hasReadPermissions(Object object) {
 		return permissionService.canRead(object);
@@ -59,27 +60,11 @@ public class DataFilteringServiceImpl implements DataFilteringService {
 	@Override
 	public boolean isAllowedByUser(ProjectResource object) {
 		ProjectFilter filter = userFilterService.findProjectFilterByUserLogin();
-		
-		return filter.getActivated() ? 
-				filter.isProjectSelected(object.getProject())
-				: true;
-		
-	}
 
-	/**
-	 * @param userFilterService the userFilterService to set
-	 */
-	@ServiceReference
-	public void setUserFilterService(ProjectFilterModificationService userFilterService) {
-		this.userFilterService = userFilterService;
-	}
+		return filter.getActivated() ?
+			filter.isProjectSelected(object.getProject())
+			: true;
 
-	/**
-	 * @param permissionService the permissionService to set
-	 */
-	@ServiceReference
-	public void setPermissionService(PermissionEvaluationService permissionService) {
-		this.permissionService = permissionService;
 	}
 
 }

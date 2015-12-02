@@ -21,36 +21,28 @@
 package org.squashtest.tm.web.internal.fileupload;
 
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.osgi.context.event.OsgiBundleApplicationContextEventMulticaster;
-import org.springframework.osgi.context.event.OsgiBundleApplicationContextListener;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextStartedEvent;
+import org.springframework.stereotype.Component;
 import org.squashtest.tm.event.ConfigUpdateEvent;
 import org.squashtest.tm.service.configuration.ConfigurationService;
 import org.squashtest.tm.web.internal.controller.attachment.UploadedData;
 
-public class UploadContentFilterUtil implements OsgiBundleApplicationContextListener<ConfigUpdateEvent> {
+import javax.inject.Inject;
 
-
-	private OsgiBundleApplicationContextEventMulticaster publisher;
-	
-	private ConfigurationService config; 
-	
-	public void setConfig(ConfigurationService config) {
-		this.config = config;
-	}
-	public void setPublisher(OsgiBundleApplicationContextEventMulticaster publisher) {
-		this.publisher = publisher;
-	}
+@Component
+public class UploadContentFilterUtil implements ApplicationListener<ApplicationEvent> {
+    /**
+     * This is fetched from app context when context started event is triggered.
+     */
+	private ConfigurationService config;
 
 	private String[] allowed;
 
-	private String whiteListKey;
-	
-	public void setWhiteListKey(String whiteListKey) {
-		this.whiteListKey = whiteListKey;	
-	}
-	
+	private String whiteListKey = ConfigurationService.Properties.UPLOAD_EXTENSIONS_WHITELIST;
 
-	private void updateConfig(){
+	private void updateConfig() {
 		String whiteList = config.findConfiguration(whiteListKey);
 		allowed = whiteList.split(",");
 	}
@@ -68,14 +60,14 @@ public class UploadContentFilterUtil implements OsgiBundleApplicationContextList
 		return false;
 	}
 
-	public void init(){
-		publisher.addApplicationListener(this);
-		updateConfig();
-	}
-
-
 	@Override
-	public void onOsgiApplicationEvent(ConfigUpdateEvent event) {
-		updateConfig();	
+	public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof ContextStartedEvent && config == null) {
+            config = ((ContextStartedEvent) event).getApplicationContext().getBean(ConfigurationService.class);
+        }
+
+		if (event instanceof ConfigUpdateEvent || event instanceof ContextStartedEvent) {
+			updateConfig();
+		}
 	}
 }

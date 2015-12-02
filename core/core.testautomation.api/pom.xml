@@ -4,39 +4,37 @@
   <parent>
     <groupId>org.squashtest.tm</groupId>
     <artifactId>squashtest-csp-core</artifactId>
-    <version>1.13.0.IT104-SNAPSHOT</version>
+    <version>1.13.0.NOSGI-SNAPSHOT</version>
   </parent>
 
   <artifactId>core.testautomation.api</artifactId>
-  <packaging>bundle</packaging>
   <name>${project.groupId}.${project.artifactId}</name>
   <description>Squash TM API / SPI for test automation frameworks</description>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.squashtest.tm</groupId>
+        <artifactId>squash-tm-bom</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
       <groupId>javax.validation</groupId>
-      <artifactId>com.springsource.javax.validation</artifactId>
+      <artifactId>validation-api</artifactId>
     </dependency>
   </dependencies>
 
   <build>
     <plugins>
-      <!--  compile  -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-      </plugin>
-
-      <!--  package -->
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <_include>bnd.bnd</_include>
-          </instructions>
-        </configuration>
       </plugin>
     </plugins>
   </build>

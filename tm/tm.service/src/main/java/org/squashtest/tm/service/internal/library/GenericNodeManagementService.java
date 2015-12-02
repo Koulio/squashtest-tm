@@ -32,14 +32,15 @@ import org.squashtest.tm.service.internal.repository.LibraryDao;
 import org.squashtest.tm.service.security.PermissionEvaluationService;
 import org.squashtest.tm.service.security.PermissionsUtils;
 import org.squashtest.tm.service.security.SecurityCheckableObject;
-import static org.squashtest.tm.service.security.Authorizations.*;
+
+import static org.squashtest.tm.service.security.Authorizations.OR_HAS_ROLE_ADMIN;
 
 /**
  * Generic management service for library nodes. It is responsible for common operations such as rename / move / copy
  * and so on.
- * 
+ *
  * @author Gregory Fouquet
- * 
+ *
  * @param <FOLDER>
  *            Type of folder which can contain managed type
  * @param <NODE>
@@ -49,21 +50,25 @@ import static org.squashtest.tm.service.security.Authorizations.*;
  */
 @Transactional
 public class GenericNodeManagementService<MANAGED extends LibraryNode, NODE extends LibraryNode, FOLDER extends Folder<NODE>>
-implements NodeManagementService<MANAGED, NODE, FOLDER> {
+	implements NodeManagementService<MANAGED, NODE, FOLDER> {
 
-	private PermissionEvaluationService permissionService;
+	private final PermissionEvaluationService permissionService;
 
-	public void setPermissionService(PermissionEvaluationService permissionService) {
+	private final EntityDao<MANAGED> nodeDao;
+
+	private final FolderDao<FOLDER, NODE> folderDao;
+	private final LibraryDao<? extends Library<NODE>, NODE> libraryDao;
+
+	public GenericNodeManagementService(PermissionEvaluationService permissionService, EntityDao<MANAGED> nodeDao, FolderDao<FOLDER, NODE> folderDao, LibraryDao<? extends Library<NODE>, NODE> libraryDao) {
 		this.permissionService = permissionService;
+		this.nodeDao = nodeDao;
+		this.folderDao = folderDao;
+		this.libraryDao = libraryDao;
 	}
-
-	private EntityDao<MANAGED> nodeDao;
-	private FolderDao<FOLDER, NODE> folderDao;
-	private LibraryDao<Library<NODE>, NODE> libraryDao;
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.squashtest.csp.tm.internal.service.NodeManagementService#findNode(long)
 	 */
 	@Override
@@ -73,13 +78,9 @@ implements NodeManagementService<MANAGED, NODE, FOLDER> {
 		return nodeDao.findById(nodeId);
 	}
 
-	public void setFolderDao(FolderDao<FOLDER, NODE> folderDao) {
-		this.folderDao = folderDao;
-	}
-
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.squashtest.csp.tm.internal.service.NodeManagementService#removeNode(long)
 	 */
 	@Override
@@ -97,7 +98,7 @@ implements NodeManagementService<MANAGED, NODE, FOLDER> {
 
 	/**
 	 * check if the current user context has delete permission on the node.
-	 * 
+	 *
 	 * @param nodeId
 	 * @return
 	 */
@@ -109,7 +110,7 @@ implements NodeManagementService<MANAGED, NODE, FOLDER> {
 
 	/**
 	 * check if the current user context has WRITE permission on the node.
-	 * 
+	 *
 	 * @param nodeId
 	 * @return
 	 */
@@ -121,7 +122,7 @@ implements NodeManagementService<MANAGED, NODE, FOLDER> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.squashtest.csp.tm.internal.service.NodeManagementService#renameNode(long, java.lang.String)
 	 */
 	@Override
@@ -149,7 +150,7 @@ implements NodeManagementService<MANAGED, NODE, FOLDER> {
 
 	/**
 	 * Renames the node regardless its current name. In other words, renaming a node to its current name should fail.
-	 * 
+	 *
 	 * @param node
 	 * @param trimedNewName the new name previously trimed.
 	 */
@@ -176,18 +177,6 @@ implements NodeManagementService<MANAGED, NODE, FOLDER> {
 	private boolean notCurrentNameOfNode(String newName, MANAGED node) {
 		return !node.getName().equals(newName);
 	}
-
-	public void setLibraryDao(LibraryDao<Library<NODE>, NODE> libraryDao) {
-		this.libraryDao = libraryDao;
-	}
-
-	public void setNodeDao(EntityDao<MANAGED> nodeDao) {
-		this.nodeDao = nodeDao;
-	}
-
-	/* ********************* security scaffolding ************************ */
-
-
 
 	private void checkPermission(SecurityCheckableObject... checkableObjects) {
 		PermissionsUtils.checkPermission(permissionService, checkableObjects);

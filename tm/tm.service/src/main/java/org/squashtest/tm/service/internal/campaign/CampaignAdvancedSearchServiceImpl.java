@@ -21,15 +21,6 @@
 package org.squashtest.tm.service.internal.campaign;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-
-import javax.inject.Inject;
-
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
@@ -41,11 +32,7 @@ import org.hibernate.search.query.dsl.QueryBuilder;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
-import org.squashtest.tm.core.foundation.collection.PagedCollectionHolder;
-import org.squashtest.tm.core.foundation.collection.PagingAndMultiSorting;
-import org.squashtest.tm.core.foundation.collection.PagingBackedPagedCollectionHolder;
-import org.squashtest.tm.core.foundation.collection.SortOrder;
-import org.squashtest.tm.core.foundation.collection.Sorting;
+import org.squashtest.tm.core.foundation.collection.*;
 import org.squashtest.tm.domain.customfield.BindableEntity;
 import org.squashtest.tm.domain.customfield.CustomField;
 import org.squashtest.tm.domain.execution.Execution;
@@ -61,6 +48,9 @@ import org.squashtest.tm.service.internal.infolist.InfoListItemComparatorSource;
 import org.squashtest.tm.service.internal.repository.TestCaseDao;
 import org.squashtest.tm.service.project.ProjectManagerService;
 import org.squashtest.tm.service.project.ProjectsPermissionManagementService;
+
+import javax.inject.Inject;
+import java.util.*;
 
 @Service("squashtest.tm.service.CampaignAdvancedSearchService")
 public class CampaignAdvancedSearchServiceImpl extends AdvancedSearchServiceImpl implements
@@ -78,24 +68,24 @@ public class CampaignAdvancedSearchServiceImpl extends AdvancedSearchServiceImpl
 
 	@Inject
 	private MessageSource source;
-	
+
 	@Inject
 	private ProjectsPermissionManagementService projectsPermissionManagementService;
 
 
 	private final static SortField[] DEFAULT_SORT_EXECUTION = new SortField[] {
-			new SortField("project.name", SortField.STRING, false),
-			new SortField("campaign-name", SortField.STRING, false),
-			new SortField("iteration-name", SortField.STRING, false),
-			new SortField("iteration-name", SortField.STRING, false),
-			new SortField("execution-id", SortField.STRING, false),
-			new SortField("execution-mode", SortField.STRING, false),
-			new SortField("execution-milestone-nb", SortField.STRING, false),
-			new SortField("testsuite-execution", SortField.STRING, false),
-			new SortField("execution-status", SortField.STRING, false),
-			new SortField("execution-executed-by", SortField.STRING, false),
-			new SortField("execution-executed-on", SortField.STRING, false),
-			new SortField("execution-datasets", SortField.STRING, false) };
+			new SortField("project.name", SortField.Type.STRING, false),
+			new SortField("campaign-name", SortField.Type.STRING, false),
+			new SortField("iteration-name", SortField.Type.STRING, false),
+			new SortField("iteration-name", SortField.Type.STRING, false),
+			new SortField("execution-id", SortField.Type.STRING, false),
+			new SortField("execution-mode", SortField.Type.STRING, false),
+			new SortField("execution-milestone-nb", SortField.Type.STRING, false),
+			new SortField("testsuite-execution", SortField.Type.STRING, false),
+			new SortField("execution-status", SortField.Type.STRING, false),
+			new SortField("execution-executed-by", SortField.Type.STRING, false),
+			new SortField("execution-executed-on", SortField.Type.STRING, false),
+			new SortField("execution-datasets", SortField.Type.STRING, false) };
 
 	private final static List<String> LONG_SORTABLE_FIELDS = Arrays.asList("");
 
@@ -108,7 +98,7 @@ public class CampaignAdvancedSearchServiceImpl extends AdvancedSearchServiceImpl
 		for (Project project : readableProjects) {
 			projectIds.add(project.getId());
 		}
-		
+
 		return findUsersWhoCanAccessProject(projectIds);
 	}
 
@@ -129,8 +119,8 @@ public class CampaignAdvancedSearchServiceImpl extends AdvancedSearchServiceImpl
 	}
 	return list;
 	}
-	
-	
+
+
 	@Override
 	public List<CustomField> findAllQueryableCustomFieldsByBoundEntityType(BindableEntity entity) {
 		// TODO Auto-generated method stub
@@ -186,12 +176,12 @@ public class CampaignAdvancedSearchServiceImpl extends AdvancedSearchServiceImpl
 			fieldName = formatSortFieldName(fieldName);
 
 			if (LONG_SORTABLE_FIELDS.contains(fieldName)) {
-				sortFieldArray[i] = new SortField(fieldName, SortField.LONG, isReverse);
+				sortFieldArray[i] = new SortField(fieldName, SortField.Type.LONG, isReverse);
 			} else if ("nature".equals(fieldName) || "type".equals(fieldName)) {
 				sortFieldArray[i] = new SortField(fieldName, new InfoListItemComparatorSource(source, locale),
 						isReverse);
 			} else {
-				sortFieldArray[i] = new SortField(fieldName, SortField.STRING, isReverse);
+				sortFieldArray[i] = new SortField(fieldName, SortField.Type.STRING, isReverse);
 			}
 		}
 
@@ -212,20 +202,20 @@ public class CampaignAdvancedSearchServiceImpl extends AdvancedSearchServiceImpl
 	/*
 	 * That implementation is special because we cannot process the milestones as usual. Indeed, we need the test cases
 	 * that belongs both directly and indirectly to the milestone. That's why we use the method noMilestoneLuceneQuery.
-	 * 
+	 *
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.squashtest.tm.service.testcase.TestCaseAdvancedSearchService#searchForTestCases(org.squashtest.tm.domain.
 	 * search.AdvancedSearchModel, java.util.Locale)
 	 */
 	/*
 	 * TODO :
-	 * 
+	 *
 	 * This method is basically an override of "buildLuceneQuery" defined in the superclass -> thus we could rename it
 	 * accordingly. However in method "searchForTestCasesThroughRequirementModel" we must use the super implementation
 	 * of "buildLuceneQuery" -> thus renaming "searchTestCaseQuery" to "buildLuceneQuery" could lead to ambiguity.
-	 * 
+	 *
 	 * I don't know what to do about it.
 	 */
 	protected Query searchExecutionQuery(AdvancedSearchModel model, FullTextSession ftSession, Locale locale) {
@@ -234,7 +224,7 @@ public class CampaignAdvancedSearchServiceImpl extends AdvancedSearchServiceImpl
 
 		/*
 		 * we must not include the milestone criteria yet because it'll be the subject of a separate query.
-		 * 
+		 *
 		 * Let's save the search model and create a milestone-stripped version of it
 		 */
 

@@ -32,7 +32,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -83,29 +83,29 @@ class ExcelExporter {
 
 	private String errorCellTooLargeMessage;
 
-	
+
 	private static final List<CoverageSheetColumn> COVERAGE_COLUMNS = Arrays.asList(
 		CoverageSheetColumn.REQ_PATH,
-		CoverageSheetColumn.REQ_VERSION_NUM, 
+		CoverageSheetColumn.REQ_VERSION_NUM,
 		CoverageSheetColumn.TC_PATH);
-	
+
 	private static final List<DatasetSheetColumn> DS_COLUMNS = Arrays.asList(
-		DatasetSheetColumn.TC_OWNER_PATH, 
-		DatasetSheetColumn.TC_OWNER_ID, 
-		DatasetSheetColumn.TC_DATASET_ID, 
-		DatasetSheetColumn.TC_DATASET_NAME, 
-		DatasetSheetColumn.TC_PARAM_OWNER_PATH, 
-		DatasetSheetColumn.TC_PARAM_OWNER_ID, 
-		DatasetSheetColumn.TC_DATASET_PARAM_NAME, 
+		DatasetSheetColumn.TC_OWNER_PATH,
+		DatasetSheetColumn.TC_OWNER_ID,
+		DatasetSheetColumn.TC_DATASET_ID,
+		DatasetSheetColumn.TC_DATASET_NAME,
+		DatasetSheetColumn.TC_PARAM_OWNER_PATH,
+		DatasetSheetColumn.TC_PARAM_OWNER_ID,
+		DatasetSheetColumn.TC_DATASET_PARAM_NAME,
 		DatasetSheetColumn.TC_DATASET_PARAM_VALUE);
-	
+
 	private static final List<ParameterSheetColumn> PRM_COLUMNS = Arrays.asList(
 		ParameterSheetColumn.TC_OWNER_PATH,
 		ParameterSheetColumn.TC_OWNER_ID,
 		ParameterSheetColumn.TC_PARAM_ID,
 		ParameterSheetColumn.TC_PARAM_NAME,
 		ParameterSheetColumn.TC_PARAM_DESCRIPTION);
-	
+
 	private static final List<StepSheetColumn> ST_COLUMNS = Arrays.asList(StepSheetColumn.TC_OWNER_PATH,
 			StepSheetColumn.TC_OWNER_ID,
 			StepSheetColumn.TC_STEP_ID,
@@ -116,8 +116,8 @@ class ExcelExporter {
 			StepSheetColumn.TC_STEP_EXPECTED_RESULT,
 			StepSheetColumn.TC_STEP_NB_REQ,
 			StepSheetColumn.TC_STEP_NB_ATTACHMENT);
-	
-	
+
+
 	private static final TestCaseSheetColumn[] BASIC_TC_COLUMNS = { TestCaseSheetColumn.PROJECT_ID,
 	TestCaseSheetColumn.PROJECT_NAME,
 	TestCaseSheetColumn.TC_PATH,
@@ -139,12 +139,12 @@ class ExcelExporter {
 	TestCaseSheetColumn.TC_CREATED_BY,
 	TestCaseSheetColumn.TC_LAST_MODIFIED_ON,
 	TestCaseSheetColumn.TC_LAST_MODIFIED_BY};
-	
+
 	private static final List<TestCaseSheetColumn> TC_COLUMNS_MILESTONES = new ArrayList<TestCaseSheetColumn>(Arrays.asList((TestCaseSheetColumn[])ArrayUtils.add(BASIC_TC_COLUMNS, 7, TestCaseSheetColumn.TC_MILESTONE)));
-	
-	private static final List<TestCaseSheetColumn> TC_COLUMNS =  Arrays.asList(BASIC_TC_COLUMNS);  
-	
-	
+
+	private static final List<TestCaseSheetColumn> TC_COLUMNS =  Arrays.asList(BASIC_TC_COLUMNS);
+
+
 	@Inject
 	public ExcelExporter(FeatureManager featureManager, MessageSource messageSource) {
 		super();
@@ -255,7 +255,7 @@ class ExcelExporter {
 
 				appendCustomFields(r, "TC_CUF_", tcm.getCufs());
 				cIdx = doOptionnalAppendTestCases(r,cIdx,tcm);
-				
+
 			}
 			catch(IllegalArgumentException wtf){
 
@@ -420,14 +420,14 @@ class ExcelExporter {
 				r.createCell(cIdx++).setCellValue(cm.getReqPath());
 				r.createCell(cIdx++).setCellValue(cm.getReqVersion());
 				r.createCell(cIdx++).setCellValue(cm.getTcPath());
-		
+
 			rIdx++;
 			cIdx = 0;
 		}
-		
+
 	}
 
-	
+
 	private String nullSafeValue(CustomField customField) {
 		String value = customField.getValue();
 		return value == null ? "" : value;
@@ -476,17 +476,17 @@ class ExcelExporter {
 	private void createCoverageSheetHeaders() {
 		createSheetHeaders(COV_SHEET, COVERAGE_COLUMNS);
 	}
-	
+
 	private void createSheetHeaders(String sheetName, List<? extends TemplateColumn> cols){
 		Sheet dsSheet = workbook.getSheet(sheetName);
 		Row h = dsSheet.createRow(0);
 		int cIdx = 0;
 		for (TemplateColumn t : cols){
-			h.createCell(cIdx++).setCellValue(t.getHeader());	
+			h.createCell(cIdx++).setCellValue(t.getHeader());
 		}
 	}
 
-	private void createDatasetSheetHeaders() {	
+	private void createDatasetSheetHeaders() {
 		createSheetHeaders(DS_SHEET, DS_COLUMNS);
 	}
 
@@ -499,7 +499,7 @@ class ExcelExporter {
 	}
 
 	private void createTestCaseSheetHeaders() {
-		
+
 		List<TestCaseSheetColumn> columns = milestonesEnabled ? TC_COLUMNS_MILESTONES : TC_COLUMNS;
 		createSheetHeaders(TC_SHEET, columns);
 		createOptionalTestCaseSheetHeaders();

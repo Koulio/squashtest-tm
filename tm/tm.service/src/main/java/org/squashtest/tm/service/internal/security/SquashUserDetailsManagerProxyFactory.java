@@ -18,23 +18,23 @@
  *     You should have received a copy of the GNU Lesser General Public License
  *     along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.squashtest.tm.service.internal.security;
 
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
+import org.squashtest.tm.service.feature.FeatureManager;
+import org.squashtest.tm.service.feature.FeatureManager.Feature;
+
+import javax.validation.constraints.NotNull;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.squashtest.tm.service.feature.FeatureManager;
-import org.squashtest.tm.service.feature.FeatureManager.Feature;
+import java.util.List;
 
 /**
  * This SquashUserDetailsManagerProxy either delegates method calls to a
@@ -42,43 +42,50 @@ import org.squashtest.tm.service.feature.FeatureManager.Feature;
  * sensitivity according to the state of the case sensitivity feature.
  *
  * @author Gregory Fouquet
- *
  */
-@Service("squashtest.core.security.JdbcUserDetailsManager")
-@Transactional
 public class SquashUserDetailsManagerProxyFactory implements FactoryBean<SquashUserDetailsManager>, InitializingBean {
-	@Inject
-	@Named("userDetailsManager.caseSensitive")
+
 	private SquashUserDetailsManager caseSensitiveManager;
 
-	@Inject
-	@Named("userDetailsManager.caseInsensitive")
 	private SquashUserDetailsManager caseInsensitiveManager;
 
-	@Inject
 	private FeatureManager features;
 	/**
 	 * The object built by this FactoryBean.
 	 */
 	private SquashUserDetailsManager proxy;
 
-	private class ManagerDelegator implements InvocationHandler {
+	public void setCaseSensitiveManager(SquashUserDetailsManager caseSensitiveManager) {
+		this.caseSensitiveManager = caseSensitiveManager;
+	}
+
+	public void setCaseInsensitiveManager(SquashUserDetailsManager caseInsensitiveManager) {
+		this.caseInsensitiveManager = caseInsensitiveManager;
+	}
+
+	public void setFeatures(FeatureManager features) {
+		this.features = features;
+	}
+
+	private static class ManagerDelegator implements InvocationHandler {
+		private final SquashUserDetailsManagerProxyFactory context;
+
+		private ManagerDelegator(SquashUserDetailsManagerProxyFactory context) {
+			this.context = context;
+		}
+
 		/**
 		 * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object,
-		 *      java.lang.reflect.Method, java.lang.Object[])
+		 * java.lang.reflect.Method, java.lang.Object[])
 		 */
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 			try {
-				return method.invoke(getCurrentManager(), args);
+				return method.invoke(context.getCurrentManager(), args);
 			} catch (InvocationTargetException e) {
 				throw e.getCause();
 			}
 		}
-	}
-
-	private SquashUserDetailsManagerProxyFactory() {
-		super();
 	}
 
 	/**
@@ -95,7 +102,7 @@ public class SquashUserDetailsManagerProxyFactory implements FactoryBean<SquashU
 	 * @see org.springframework.beans.factory.FactoryBean#getObject()
 	 */
 	@Override
-	public SquashUserDetailsManager getObject() throws Exception {
+	public SquashUserDetailsManager getObject() {
 		return proxy;
 	}
 
@@ -122,7 +129,7 @@ public class SquashUserDetailsManagerProxyFactory implements FactoryBean<SquashU
 	public void afterPropertiesSet() throws Exception {
 		if (proxy == null) {
 			proxy = (SquashUserDetailsManager) Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-					new Class[] { SquashUserDetailsManager.class }, new ManagerDelegator());
+					new Class[]{SquashUserDetailsManager.class}, new ManagerDelegator(this));
 		}
 	}
 

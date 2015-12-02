@@ -38,26 +38,29 @@ import org.squashtest.tm.web.internal.i18n.MessageObject;
 import org.squashtest.tm.web.internal.model.json.JsonCustomReportChartBinding;
 import org.squashtest.tm.web.internal.model.json.JsonCustomReportDashboard;
 
-@Component
+import javax.inject.Inject;
+
+@Component("customReport.dashboardBuilder")
 @Scope("prototype")
 public class JsonCustomReportDashboardBuilder {
-	
+
 	private ChartModificationService chartService;
-	
+
 	private JsonCustomReportDashboard json = new JsonCustomReportDashboard();
-	
+
 	private CustomReportDashboard dashboard;
-	
+
 	private InternationalizationHelper i18nHelper;
-	
+
 	private String i18nKeyDateFormat = "squashtm.dateformat";
-	
+
+	@Inject
 	public JsonCustomReportDashboardBuilder(ChartModificationService chartService,InternationalizationHelper i18nHelper) {
 		super();
 		this.chartService = chartService;
 		this.i18nHelper = i18nHelper;
 	}
-	
+
 	public JsonCustomReportDashboard build(CustomReportDashboard dashboard, Locale locale){
 		this.dashboard = dashboard;
 		doBaseAttributes();
@@ -90,7 +93,7 @@ public class JsonCustomReportDashboardBuilder {
 		json.setCreatedBy(audit.getCreatedBy());
 		json.setLastModifiedBy(audit.getLastModifiedBy());
 	}
-	
+
 	private void doDateAttributes(Locale locale) {
 		AuditableMixin	 audit = (AuditableMixin) dashboard;//NOSONAR it's just for eclipse...
 		String dateFormat = findI18nDateFormat(locale);

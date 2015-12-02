@@ -34,16 +34,13 @@ import org.squashtest.tm.service.configuration.ConfigurationService;
 @Transactional
 public class ConfigurationServiceImpl implements ConfigurationService {
 
+	// TODO make these named queries
 	private static final String INSERT_KEY_SQL = "insert into CORE_CONFIG (STR_KEY, VALUE) values (?, ?)";
 	private static final String FIND_VALUE_BY_KEY_SQL = "select VALUE from CORE_CONFIG where STR_KEY = ?";
 	private static final String UPDATE_KEY_SQL = "update CORE_CONFIG set VALUE = ? where STR_KEY = ?";
 
 	@Inject
 	private SessionFactory sessionFactory;
-
-	public void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
 
 	@Override
 	public void createNewConfiguration(String key, String value) {
@@ -69,6 +66,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public String findConfiguration(String key) {
 		Object value = findValue(key);
 		return value == null ? null : value.toString();
@@ -88,6 +86,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 	 * @see org.squashtest.tm.service.configuration.ConfigurationService#getBoolean(java.lang.String)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public boolean getBoolean(String key) {
 		return Boolean.parseBoolean(findConfiguration(key));
 	}

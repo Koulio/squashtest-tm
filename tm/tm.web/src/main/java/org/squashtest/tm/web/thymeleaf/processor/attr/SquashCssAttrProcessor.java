@@ -35,9 +35,9 @@ import org.thymeleaf.util.PrefixUtils;
  * Processes <code>sq:css</code> attributes. Attribute value is expected to be the unqualified name of a stylesheet
  * (e.g. <code>squash.core.css</code>). The processor reads this value and substitutes the <code>sq:css</code> attribute
  * with a <code>href</code> pointing to the stylesheet.
- * 
+ *
  * @author Gregory Fouquet
- * 
+ *
  */
 public class SquashCssAttrProcessor extends AbstractSingleAttributeModifierAttrProcessor {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SquashCssAttrProcessor.class);
@@ -69,7 +69,7 @@ public class SquashCssAttrProcessor extends AbstractSingleAttributeModifierAttrP
 	 */
 	@Override
 	protected ModificationType getModificationType(Arguments arguments, Element element, String attributeName,
-			String newAttributeName) {
+	                                               String newAttributeName) {
 		return ModificationType.SUBSTITUTION;
 	}
 
@@ -79,7 +79,7 @@ public class SquashCssAttrProcessor extends AbstractSingleAttributeModifierAttrP
 	 */
 	@Override
 	protected boolean removeAttributeIfEmpty(Arguments arguments, Element element, String attributeName,
-			String newAttributeName) {
+	                                         String newAttributeName) {
 		return false;
 	}
 
@@ -105,10 +105,10 @@ public class SquashCssAttrProcessor extends AbstractSingleAttributeModifierAttrP
 
 		final String cssUrlExpression = "@{" + attributeValue + "}";
 		LOGGER.debug("Stylesheet named '{}' will be resolved using the expression '{}'", attributeValue,
-				cssUrlExpression);
+			cssUrlExpression);
 
 		final Object result = StandardExpressionProcessor.processExpression(arguments, "@{/styles"
-				+ getVersionPathToken(context) + '/' + attributeValue + "}");
+			+ getVersionPathToken(context) + '/' + attributeValue + "}");
 		LOGGER.trace("Stylesheet resolved to url '{}'", result);
 
 		return (result == null ? "" : result.toString());
@@ -125,14 +125,11 @@ public class SquashCssAttrProcessor extends AbstractSingleAttributeModifierAttrP
 	}
 
 	private void initSquashVersion(IContext context) {
-		if (context instanceof IWebContext) {
+		if (versionPathToken == null && context instanceof IWebContext) {
 			IWebContext webContext = (IWebContext) context;
-			String squashVersion = webContext.getServletContext().getInitParameter(
-					ServletContextParameters.SQUASH_TM_VERSION);
+			String squashVersion = webContext.getServletContext().getInitParameter(ServletContextParameters.SQUASH_TM_VERSION);
 
-			if (squashVersion != null) {
-				versionPathToken = '-' + squashVersion;
-			}
+			versionPathToken = squashVersion != null ? '-' + squashVersion : "";
 		}
 	}
 

@@ -32,6 +32,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.squashtest.tm.api.workspace.WorkspaceType;
 import org.squashtest.tm.domain.library.Library;
+import org.squashtest.tm.domain.requirement.RequirementLibrary;
 import org.squashtest.tm.domain.requirement.RequirementLibraryNode;
 import org.squashtest.tm.service.library.WorkspaceService;
 import org.squashtest.tm.service.requirement.RequirementLibraryNavigationService;
@@ -43,7 +44,7 @@ import org.squashtest.tm.web.internal.model.builder.DriveNodeBuilder;
 public class RequirementWorkspaceController extends WorkspaceController<RequirementLibraryNode<?>> {
 	@Inject
 	@Named("squashtest.tm.service.RequirementsWorkspaceService")
-	private WorkspaceService<Library<RequirementLibraryNode<?>>> workspaceService;
+	private WorkspaceService<RequirementLibrary> workspaceService;
 
 	@Inject
 	@Named("requirement.driveNodeBuilder")
@@ -55,7 +56,7 @@ public class RequirementWorkspaceController extends WorkspaceController<Requirem
 
 
 	@Override
-	protected WorkspaceService<Library<RequirementLibraryNode<?>>> getWorkspaceService() {
+	protected WorkspaceService<RequirementLibrary> getWorkspaceService() {
 		return workspaceService;
 	}
 
@@ -66,7 +67,7 @@ public class RequirementWorkspaceController extends WorkspaceController<Requirem
 
 	@Override
 	protected void populateModel(Model model, Locale locale) {
-		List<Library<RequirementLibraryNode<?>>> libraries = workspaceService.findAllImportableLibraries();
+		List<RequirementLibrary> libraries = workspaceService.findAllImportableLibraries();
 		model.addAttribute("editableLibraries", libraries);
 	}
 

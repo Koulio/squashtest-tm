@@ -134,6 +134,7 @@ core/core.application.api/META-INF/*
 tm/tm.web/static/*
 tm/tm.web.static/*
 core/core.jasper.fragment/META-INF/*
+tm/tm\.web/src/main/webapp/styles/squash\..+\.css
 syntax: glob
 integration-tests/log/IT.log
 integration-tests/src/it/resources/log4j.properties
@@ -146,6 +147,11 @@ core/core.service/META-INF$
 tm/tm.web/images/*
 ^.*\\\.settings$
 tm/tm.web/node_modules
+.profiler
+tm/tm.web/@lucene.dir@
+@lucene.dir@
+tm/data
+tm/tomcat-work
 syntax: regexp
 ^plugins/plugin\.testautomation\.jenkins/META-INF$
 syntax: regexp
@@ -156,3 +162,6 @@ syntax: regexp
 ^tm/tm\.aspects/META-INF$
 ^tm/tm\.domain/target$
 ^tm/tm\.domain/META-INF/.*$
+\.iml$
+^\.idea\/
+\/bin\/

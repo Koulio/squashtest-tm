@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.squashtest.tm.core.foundation.collection.Filtering;
 import org.squashtest.tm.core.foundation.collection.PagedCollectionHolder;
 import org.squashtest.tm.core.foundation.collection.PagingAndSorting;
@@ -54,6 +55,7 @@ import org.squashtest.tm.service.project.ProjectsPermissionManagementService;
 import org.squashtest.tm.service.security.acls.model.ObjectAclService;
 
 @Service("squashtest.tm.service.ProjectsPermissionManagementService")
+@Transactional
 public class ProjectsPermissionManagementServiceImpl implements ProjectsPermissionManagementService {
 
 	private static final String NAMESPACE = "squashtest.acl.group.tm";
@@ -72,6 +74,7 @@ public class ProjectsPermissionManagementServiceImpl implements ProjectsPermissi
 	@Inject
 	private PartyDao partyDao;
 
+	@Transactional(readOnly = true)
 	@Override
 	public List<PermissionGroup> findAllPossiblePermission() {
 		return aclService.findAllPermissionGroupsByNamespace(NAMESPACE);
@@ -136,6 +139,7 @@ public class ProjectsPermissionManagementServiceImpl implements ProjectsPermissi
 		return new ObjectIdentityImpl(CustomReportLibrary.class, project.getCustomReportLibrary().getId());
 	}
 
+	@Transactional(readOnly = true)
 	@Override
 	public List<ProjectPermission> findProjectPermissionByParty(long partyId) {
 		List<ProjectPermission> newResult = new ArrayList<ProjectPermission>();
@@ -147,6 +151,7 @@ public class ProjectsPermissionManagementServiceImpl implements ProjectsPermissi
 		return newResult;
 	}
 
+	@Transactional(readOnly = true)
 	@Override
 	public List<GenericProject> findProjectWithPermissionByParty(long partyId) {
 		List<GenericProject> newResult = new ArrayList<GenericProject>();
@@ -158,6 +163,7 @@ public class ProjectsPermissionManagementServiceImpl implements ProjectsPermissi
 		return newResult;
 	}
 
+	@Transactional(readOnly = true)
 	@Override
 	public List<ProjectPermission> findProjectPermissionByUserLogin(String userLogin) {
 		List<ProjectPermission> newResult = new ArrayList<ProjectPermission>();
@@ -169,6 +175,7 @@ public class ProjectsPermissionManagementServiceImpl implements ProjectsPermissi
 		return newResult;
 	}
 
+	@Transactional(readOnly = true)
 	@Override
 	public PagedCollectionHolder<List<ProjectPermission>> findProjectPermissionByParty(long partyId,
 			PagingAndSorting sorting, Filtering filtering) {
@@ -187,6 +194,7 @@ public class ProjectsPermissionManagementServiceImpl implements ProjectsPermissi
 		return new PagingBackedPagedCollectionHolder<List<ProjectPermission>>(sorting, total, newResult);
 	}
 
+	@Transactional(readOnly = true)
 	@Override
 	public List<GenericProject> findProjectWithoutPermissionByParty(long partyId) {
 		List<Long> idList = aclService.findObjectWithoutPermissionByPartyId(partyId, PROJECT_CLASS_NAMES);
@@ -197,6 +205,7 @@ public class ProjectsPermissionManagementServiceImpl implements ProjectsPermissi
 
 	}
 
+	@Transactional(readOnly = true)
 	@Override
 	public List<GenericProject> findProjectWithoutPermissionByParty(long partyId, Sorting defaultSorting) {
 		List<Long> idList = aclService.findObjectWithoutPermissionByPartyId(partyId, PROJECT_CLASS_NAMES);
@@ -254,6 +263,7 @@ public class ProjectsPermissionManagementServiceImpl implements ProjectsPermissi
 		aclService.removeAllResponsibilities(partyId);
 	}
 
+	@Transactional(readOnly = true)
 	@Override
 	public List<PartyProjectPermissionsBean> findPartyPermissionsBeanByProject(long projectId) {
 
@@ -264,6 +274,7 @@ public class ProjectsPermissionManagementServiceImpl implements ProjectsPermissi
 
 	}
 
+	@Transactional(readOnly = true)
 	@Override
 	public PagedCollectionHolder<List<PartyProjectPermissionsBean>> findPartyPermissionsBeanByProject(
 			PagingAndSorting sorting, Filtering filtering, long projectId) {
@@ -275,6 +286,7 @@ public class ProjectsPermissionManagementServiceImpl implements ProjectsPermissi
 
 	}
 
+	@Transactional(readOnly = true)
 	@Override
 	public List<Party> findPartyWithoutPermissionByProject(long projectId) {
 		List<Long> idList = aclService.findPartiesWithoutPermissionByObject(projectId, PROJECT_CLASS_NAMES);
@@ -385,6 +397,7 @@ public class ProjectsPermissionManagementServiceImpl implements ProjectsPermissi
 		return isInPermissionGroup(user.getId(), projectId, permissionGroup);
 	}
 
+	@Transactional(readOnly = true)
 	@Override
 	public boolean isInPermissionGroup(long partyId, Long projectId, String permissionGroup) {
 		boolean isInGroup = false;

@@ -23,10 +23,12 @@ package org.squashtest.tm.domain.library;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang.NullArgumentException;
+import org.squashtest.tm.core.foundation.exception.NullArgumentException;
 import org.squashtest.tm.domain.Identified;
 import org.squashtest.tm.domain.project.GenericProject;
 import org.squashtest.tm.exception.DuplicateNameException;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * Interface for an object which contains tree node objects.
@@ -44,7 +46,7 @@ public interface NodeContainer<NODE extends TreeNode> extends Identified {
 	 * 
 	 * @param node
 	 */
-	void addContent(NODE node) throws DuplicateNameException, NullArgumentException;
+	void addContent(@NotNull NODE node) throws DuplicateNameException, NullArgumentException;
 
 	/**
 	 * Adds new content to this container at the given position. Should refuse to add null content, should refuse to add
@@ -53,7 +55,7 @@ public interface NodeContainer<NODE extends TreeNode> extends Identified {
 	 * 
 	 * @param node
 	 */
-	void addContent(NODE node, int position) throws DuplicateNameException, NullArgumentException;
+	void addContent(@NotNull NODE node, int position) throws DuplicateNameException, NullArgumentException;
 
 	boolean isContentNameAvailable(String name);
 

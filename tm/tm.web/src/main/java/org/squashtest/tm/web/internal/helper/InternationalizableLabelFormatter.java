@@ -25,7 +25,7 @@ import java.util.Locale;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -73,7 +73,7 @@ public class InternationalizableLabelFormatter implements LabelFormatter<Interna
 	@Override
 	public String formatLabel(Internationalizable toFormat) {
 		String label = messageSource.getMessage(toFormat.getI18nKey(), null, locale);
-		return escapeHtml ? StringEscapeUtils.escapeHtml(label) : label;
+		return escapeHtml ? StringEscapeUtils.escapeHtml4(label) : label;
 	}
 
 	/**

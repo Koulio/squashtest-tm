@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.squashtest.tm</groupId>
     <artifactId>squash-tm</artifactId>
-    <version>1.13.0.IT104-SNAPSHOT</version>
+    <version>1.13.0.NOSGI-SNAPSHOT</version>
   </parent>
 
   <artifactId>squashtest-tm-database</artifactId>
@@ -22,8 +22,8 @@
     <dependencies>
       <dependency>
         <groupId>org.squashtest.tm</groupId>
-        <artifactId>provision-bom</artifactId>
-        <version>${provisionBom.version}</version>
+        <artifactId>squash-tm-bom</artifactId>
+        <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -32,25 +32,20 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.mysql.jdbc</groupId>
-      <artifactId>com.springsource.com.mysql.jdbc</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.ancoron.postgresql</groupId>
-      <artifactId>org.postgresql</artifactId>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- <dependency>
-        <groupId>org.ancoron.postgresql</groupId>
-        <artifactId>org.postgresql.net</artifactId>
-         <scope>test</scope>
-      </dependency> -->
+    <dependency>
+      <groupId>postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -144,7 +139,7 @@
               <dropFirst>true</dropFirst>
               <changeLogFile>${migration-test.changelog}</changeLogFile>
               <driver>org.h2.Driver</driver>
-              <url>jdbc:h2:target/database/data-migration</url>
+              <url>jdbc:h2:${project.build.directory}/database/data-migration</url>
               <username>sa</username>
               <password>sa</password>
             </configuration>
@@ -161,7 +156,7 @@
               <dropFirst>true</dropFirst>
               <changeLogFile>${incremental.updates.changelog}</changeLogFile>
               <driver>org.h2.Driver</driver>
-              <url>jdbc:h2:target/database/data-migration</url>
+              <url>jdbc:h2:${project.build.directory}/database/data-migration</url>
               <username>sa</username>
               <password>sa</password>
             </configuration>

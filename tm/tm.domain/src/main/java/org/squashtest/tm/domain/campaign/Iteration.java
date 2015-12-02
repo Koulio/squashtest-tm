@@ -20,8 +20,9 @@
  */
 package org.squashtest.tm.domain.campaign;
 
-import org.apache.commons.lang.NullArgumentException;
-import org.apache.commons.lang.StringUtils;
+
+import org.squashtest.tm.core.foundation.exception.NullArgumentException;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Type;
 import org.hibernate.validator.constraints.NotBlank;
 import org.squashtest.tm.domain.Identified;

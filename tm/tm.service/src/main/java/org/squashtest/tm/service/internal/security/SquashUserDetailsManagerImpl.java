@@ -20,41 +20,48 @@
  */
 package org.squashtest.tm.service.internal.security;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.validation.constraints.NotNull;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
-
 /**
  * @author Gregory Fouquet
- * 
+ *
  */
-public class SquashUserDetailsManagerImpl extends JdbcUserDetailsManager implements  SquashUserDetailsManager {
+public class SquashUserDetailsManagerImpl extends JdbcUserDetailsManager implements SquashUserDetailsManager {
 
-	private static final String CHANGE_USER_LOGIN = "update AUTH_USER set LOGIN = ? where LOGIN = ?"; 
-	
+	private static final String CHANGE_USER_LOGIN = "update AUTH_USER set LOGIN = ? where LOGIN = ?";
+
 	/**
-	 * 
+	 *
 	 */
 	public SquashUserDetailsManagerImpl() {
 		super();
 	}
-	
+
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		return super.loadUserByUsername(username);
+	}
+
 	/* (non-Javadoc)
-	 * @see org.squashtest.tm.service.internal.security.SquashUserDetailsManager#changeUserLogin(java.lang.String, java.lang.String)
-	 */
+		 * @see org.squashtest.tm.service.internal.security.SquashUserDetailsManager#changeUserLogin(java.lang.String, java.lang.String)
+		 */
 	@Override
 	public void changeUserLogin(String newLogin, String oldLogin) {
 		getJdbcTemplate().update(CHANGE_USER_LOGIN, newLogin, oldLogin);
 	}
 
 	/**
-	 * 
+	 *
 	 * @see org.squashtest.tm.service.security.UserDetailsService#loadAuthoritiesByUsername(java.lang.String)
 	 */
 	@Override
@@ -75,6 +82,6 @@ public class SquashUserDetailsManagerImpl extends JdbcUserDetailsManager impleme
 
 		return dbAuths;
 	}
-	
-	
+
+
 }

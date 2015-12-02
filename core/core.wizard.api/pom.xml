@@ -4,11 +4,10 @@
   <parent>
     <groupId>org.squashtest.tm</groupId>
     <artifactId>squashtest-csp-core</artifactId>
-    <version>1.13.0.IT104-SNAPSHOT</version>
+    <version>1.13.0.NOSGI-SNAPSHOT</version>
   </parent>
 
   <artifactId>core.wizard.api</artifactId>
-  <packaging>bundle</packaging>
   <name>${project.groupId}.${project.artifactId}</name>
   <description>Squash TM API required to provide wizards as plugins</description>
 
@@ -16,18 +15,28 @@
     <sonar.java.coveragePlugin>cobertura</sonar.java.coveragePlugin>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.squashtest.tm</groupId>
+        <artifactId>squash-tm-bom</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
-    <!-- ====== /SQUASHTEST ====== -->
     <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
     </dependency>
     <dependency>
       <groupId>org.squashtest.tm</groupId>
       <artifactId>core.api</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- ====== SQUASHTEST ====== -->
     <dependency>
       <groupId>org.squashtest.tm</groupId>
       <artifactId>core.foundation</artifactId>
@@ -43,30 +52,10 @@
   </dependencies>
 
   <build>
-    <testSourceDirectory>src/test/groovy</testSourceDirectory>
-
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-      </plugin>
-
-      <!-- ====== SPOCK TESTS ====== -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-      </plugin>
-      <!-- ====== /SPOCK TESTS ====== -->
-
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <_include>bnd.bnd</_include>
-          </instructions>
-        </configuration>
       </plugin>
     </plugins>
   </build>

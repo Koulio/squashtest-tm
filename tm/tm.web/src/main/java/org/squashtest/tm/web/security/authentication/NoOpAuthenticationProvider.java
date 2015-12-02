@@ -23,7 +23,9 @@ package org.squashtest.tm.web.security.authentication;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.stereotype.Component;
 
+@Component("authenticationProvider.auxiliary.noop")
 public class NoOpAuthenticationProvider implements AuthenticationProvider {
 
 	@Override

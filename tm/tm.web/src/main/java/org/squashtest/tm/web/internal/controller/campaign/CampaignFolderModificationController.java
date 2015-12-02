@@ -20,10 +20,8 @@
  */
 package org.squashtest.tm.web.internal.controller.campaign;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.osgi.extensions.annotation.ServiceReference;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,6 +40,9 @@ import org.squashtest.tm.web.internal.argumentresolver.MilestoneConfigResolver.C
 import org.squashtest.tm.web.internal.controller.RequestParams;
 import org.squashtest.tm.web.internal.controller.generic.FolderModificationController;
 import org.squashtest.tm.web.internal.http.ContentTypes;
+
+import javax.inject.Inject;
+import javax.inject.Named;
 
 @Controller
 @RequestMapping("/campaign-folders/{"+RequestParams.FOLDER_ID+"}")
@@ -69,7 +70,7 @@ public class CampaignFolderModificationController extends FolderModificationCont
 		return folderModificationService;
 	}
 
-	@ServiceReference(serviceBeanName = "squashtest.tm.service.CampaignFolderModificationService")
+	@Inject @Named("squashtest.tm.service.CampaignFolderModificationService")
 	public final void setFolderModificationService(FolderModificationService<CampaignFolder> folderModificationService) {
 		this.folderModificationService = folderModificationService;
 	}
@@ -95,8 +96,6 @@ public class CampaignFolderModificationController extends FolderModificationCont
 	protected String getWorkspaceName() {
 		return "campaign";
 	}
-
-
 
 	// *************************** statistics ********************************
 

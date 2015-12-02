@@ -20,36 +20,40 @@
  */
 package org.squashtest.tm.web.internal.interceptor.openedentity;
 
-import javax.servlet.ServletContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.osgi.extensions.annotation.ServiceReference;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.web.context.ServletContextAware;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.WebRequestInterceptor;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.squashtest.tm.annotation.WebComponent;
 import org.squashtest.tm.domain.Identified;
 import org.squashtest.tm.service.security.PermissionEvaluationService;
+
+import javax.inject.Inject;
+import javax.servlet.ServletContext;
+
 /**
- * Groups mutual code to store the information of an access to the view of an entity in the OpenedEntities stored in the ServeletContext. 
+ * Groups mutual code to store the information of an access to the view of an entity in the OpenedEntities stored in the ServeletContext.
  * see {@linkplain OpenedEntities}
- * @author mpagnon
  *
+ * TODO we could probably replace the n subclasses with a sensible regexp(-like)-based configuration
+ *
+ * @author mpagnon
  */
 public abstract class ObjectViewsInterceptor implements WebRequestInterceptor {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ObjectViewsInterceptor.class);
 
-	@Autowired
+	@Inject @Lazy
 	protected ServletContext context;
 
-	@ServiceReference
-	public void setPermissionService(PermissionEvaluationService permissionService) {
-		this.permissionService = permissionService;
-	}
-
+	@Inject @Lazy
 	private PermissionEvaluationService permissionService;
 
-	public boolean addViewerToEntity(String contextAttributeName, Identified object, String userLogin) {
-		LOGGER.debug("New view added for {} = {}  Viewer = {}", new Object[] {contextAttributeName, object.getId(), userLogin});
+	protected final boolean addViewerToEntity(String contextAttributeName, Identified object, String userLogin) {
+		LOGGER.debug("New view added for {} = {}  Viewer = {}", new Object[]{contextAttributeName, object.getId(), userLogin});
 		boolean otherViewers = false;
 		if (permissionService.hasMoreThanRead(object)) {
 			LOGGER.debug("User has more than readonly in object = true");
@@ -66,6 +70,5 @@ public abstract class ObjectViewsInterceptor implements WebRequestInterceptor {
 		return otherViewers;
 	}
 
-	
 
 }

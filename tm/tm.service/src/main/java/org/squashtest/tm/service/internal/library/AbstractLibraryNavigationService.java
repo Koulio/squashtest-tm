@@ -20,21 +20,14 @@
  */
 package org.squashtest.tm.service.internal.library;
 
-import static org.squashtest.tm.service.security.Authorizations.OR_HAS_ROLE_ADMIN;
-
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.ArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-
-import javax.inject.Inject;
-
-import org.apache.commons.lang.NullArgumentException;
-import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.transaction.annotation.Transactional;
+import org.squashtest.tm.core.foundation.exception.NullArgumentException;
 import org.squashtest.tm.domain.customfield.BoundEntity;
 import org.squashtest.tm.domain.customfield.CustomFieldValue;
 import org.squashtest.tm.domain.customfield.RawValue;
@@ -54,6 +47,15 @@ import org.squashtest.tm.service.library.LibraryNavigationService;
 import org.squashtest.tm.service.security.PermissionEvaluationService;
 import org.squashtest.tm.service.security.PermissionsUtils;
 import org.squashtest.tm.service.security.SecurityCheckableObject;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import static org.squashtest.tm.service.security.Authorizations.OR_HAS_ROLE_ADMIN;
 
 /**
  * Generic implementation of a library navigation service.
@@ -100,7 +102,7 @@ import org.squashtest.tm.service.security.SecurityCheckableObject;
 @Transactional
 public abstract class AbstractLibraryNavigationService<LIBRARY extends Library<NODE>, FOLDER extends Folder<NODE>, NODE extends LibraryNode>
 implements LibraryNavigationService<LIBRARY, FOLDER, NODE> {
-
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLibraryNavigationService.class);
 	private static final String CREATE = "CREATE";
 	private static final String READ = "READ";
 
@@ -127,11 +129,11 @@ implements LibraryNavigationService<LIBRARY, FOLDER, NODE> {
 	@Inject
 	private PrivateCustomFieldValueService customFieldValuesService;
 	@Inject
-	private ObjectFactory<TreeNodeCopier> treeNodeCopierProvider;
+	private Provider<TreeNodeCopier> treeNodeCopierProvider;
 	@Inject
-	private ObjectFactory<FirstLayerTreeNodeMover> firstLayerMoverProvider;
+	private Provider<FirstLayerTreeNodeMover> firstLayerMoverProvider;
 	@Inject
-	private ObjectFactory<NextLayersTreeNodeMover> nextLayersMoverProvider;
+	private Provider<NextLayersTreeNodeMover> nextLayersMoverProvider;
 
 	public AbstractLibraryNavigationService() {
 		super();

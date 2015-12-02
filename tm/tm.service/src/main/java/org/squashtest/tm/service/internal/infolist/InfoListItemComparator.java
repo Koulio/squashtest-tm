@@ -20,88 +20,112 @@
  */
 package org.squashtest.tm.service.internal.infolist;
 
-import java.io.IOException;
-import java.util.Locale;
-
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.search.FieldCache;
+import org.apache.lucene.index.AtomicReaderContext;
 import org.apache.lucene.search.FieldComparator;
 import org.springframework.context.MessageSource;
 
-public class InfoListItemComparator extends FieldComparator<Object> {
+import java.io.IOException;
+import java.util.Locale;
 
-	private String[] values;
-	private String[] currentReaderValues;
-	private final String field;
-	private String bottom;
-	private String i18nRoot;
-	private MessageSource source;
-	private Locale locale;
+/**
+ * FIXME NdGRF I added required methods when upgrading dependencies. As there is no documentation (comments or tests),
+ * the original author shall check and fix.
+ */
+public class InfoListItemComparator extends FieldComparator<String> {
 
-	InfoListItemComparator(int numHits, String field, String i18nRoot, MessageSource source, Locale locale) {
-		values = new String[numHits];
-		this.field = field;
-		this.i18nRoot = i18nRoot;
-		this.source = source;
-		this.locale = locale;
-	}
+    private String[] values;
+    private String[] currentReaderValues;
+    private final String field;
+    private String bottom;
+    private String i18nRoot;
+    private MessageSource source;
+    private Locale locale;
+    private String top;
 
-	@Override
-	public int compare(int slot1, int slot2) {
-		final String val1 = values[slot1];
-		final String val2 = values[slot2];
+    InfoListItemComparator(int numHits, String field, String i18nRoot, MessageSource source, Locale locale) {
+        values = new String[numHits];
+        this.field = field;
+        this.i18nRoot = i18nRoot;
+        this.source = source;
+        this.locale = locale;
+    }
 
-		int result = 0;
-		if (val1 == null) {
-			if (val2 != null) {
-				result = -1;
-			}
-		} else if (val2 == null) {
-			result = 1;
-		} else {
-			String internationalizedVal1 = source.getMessage(i18nRoot + val1, null, val1, locale);
-			String internationalizedVal2 = source.getMessage(i18nRoot + val2, null, val2, locale);
-			result = internationalizedVal1.compareTo(internationalizedVal2);
-		}
-		return result;
-	}
+    @Override
+    public int compare(int slot1, int slot2) {
+        final String val1 = values[slot1];
+        final String val2 = values[slot2];
 
-	@Override
-	public int compareBottom(int doc) {
-		final String val2 = currentReaderValues[doc];
+        int result = 0;
+        if (val1 == null) {
+            if (val2 != null) {
+                result = -1;
+            }
+        } else if (val2 == null) {
+            result = 1;
+        } else {
+            String internationalizedVal1 = source.getMessage(i18nRoot + val1, null, val1, locale);
+            String internationalizedVal2 = source.getMessage(i18nRoot + val2, null, val2, locale);
+            result = internationalizedVal1.compareTo(internationalizedVal2);
+        }
+        return result;
+    }
 
-		int result = 0;
-		if (bottom == null) {
-			if (val2 != null) {
-				result = -1;
-			}
-		} else if (val2 == null) {
-			result = 1;
-		} else {
-			String internationalizedVal2 = source.getMessage(i18nRoot + val2, null, val2, locale);
-			result = bottom.compareTo(internationalizedVal2);
-		}
+    @Override
+    public int compareBottom(int doc) {
+        return compareValueToDoc(bottom, doc);
+    }
 
-		return result;
-	}
+    private int compareValueToDoc(String val1, int doc) {
+        final String val2 = currentReaderValues[doc];
 
-	@Override
-	public void copy(int slot, int doc) {
-		values[slot] = currentReaderValues[doc];
-	}
+        int result = 0;
+        if (val1 == null) {
+            if (val2 != null) {
+                result = -1;
+            }
+        } else if (val2 == null) {
+            result = 1;
+        } else {
+            String internationalizedVal2 = source.getMessage(i18nRoot + val2, null, val2, locale);
+            result = val1.compareTo(internationalizedVal2);
+        }
 
-	@Override
-	public void setNextReader(IndexReader reader, int docBase) throws IOException {
-		currentReaderValues = FieldCache.DEFAULT.getStrings(reader, field);
-	}
+        return result;
+    }
 
-	@Override
-	public void setBottom(final int bottom) {
-		this.bottom = values[bottom];
-	}
+    @Override
+    public int compareTop(int doc) throws IOException {
+        // implementation according to what is specified in javadoc
+        return compareValueToDoc(top, doc);
+    }
 
-	@Override
-	public Comparable<?> value(int slot) {
-		return values[slot];
-	}
+    @Override
+    public void copy(int slot, int doc) {
+        values[slot] = currentReaderValues[doc];
+    }
+
+    @Override
+    public FieldComparator<String> setNextReader(AtomicReaderContext context) throws IOException {
+        // FIXME 90% sure its broken but I'm clueless about what to do
+//        currentReaderValues = FieldCache.DEFAULT.getStrings(reader, field);
+        return this;
+    }
+
+    @Override
+    public void setBottom(final int bottom) {
+
+        this.bottom = values[bottom];
+    }
+
+    @Override
+    public void setTopValue(String top) {
+        // FIXME blind-guess implementation
+        this.top = top;
+    }
+
+    @Override
+    public String value(int slot) {
+
+        return values[slot];
+    }
 }

@@ -20,20 +20,11 @@
  */
 package org.squashtest.tm.event;
 
-import org.osgi.framework.Bundle;
 import org.springframework.context.ApplicationContext;
-import org.springframework.osgi.context.event.OsgiBundleApplicationContextEvent;
+import org.springframework.context.ApplicationEvent;
 
-public class ConfigUpdateEvent extends OsgiBundleApplicationContextEvent{
-
-	public ConfigUpdateEvent(ApplicationContext source, Bundle bundle) {
-		super(source, bundle);
-	}
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-
+public class ConfigUpdateEvent extends ApplicationEvent {
+    public ConfigUpdateEvent(ApplicationContext source) {
+        super(source);
+    }
 }

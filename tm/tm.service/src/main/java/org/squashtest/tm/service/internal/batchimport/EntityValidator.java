@@ -31,7 +31,7 @@ import static org.squashtest.tm.service.internal.batchimport.testcase.excel.Test
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.squashtest.tm.core.foundation.lang.PathUtils;
 import org.squashtest.tm.domain.infolist.InfoListItem;
 import org.squashtest.tm.domain.requirement.RequirementLibraryNode;
@@ -69,11 +69,11 @@ class EntityValidator {
 
 	/**
 	 * Prerforms Test Case entity check before modifying a test case.
-	 *
+	 * 
 	 * It checks : - the path is well formed (failure) - the test case has a name (failure) - the test case name has
 	 * length between 0 and 255 - the project exists (failure) - the size of fields that are restricted in size
 	 * (warning)
-	 *
+	 * 
 	 * @param target
 	 * @param testCase
 	 * @return
@@ -97,7 +97,7 @@ class EntityValidator {
 
 	/**
 	 * Performs Test Case entity check before creating a test case.
-	 *
+	 * 
 	 * @param target
 	 * @param testCase
 	 * @return
@@ -143,12 +143,12 @@ class EntityValidator {
 
 	/**
 	 * those checks are run for a test step for any type of operations.
-	 *
+	 * 
 	 * It checks : - the path of the test case is well formed (failure) - the project exists (failure) - the format of
 	 * the custom fields (lists, dates and checkbox) (warning)
-	 *
-	 *
-	 *
+	 * 
+	 * 
+	 * 
 	 * @param target
 	 * @param testStep
 	 * @return
@@ -494,7 +494,7 @@ class EntityValidator {
 	 * This method will check that, in case a nature and/or a type were supplied,
 	 * this element is consistent with the set of natures/types available in the
 	 * given project.
-	 *
+	 * 
 	 */
 	private LogTrain checkNatureAndTypeAndFixIfNeeded(TestCaseTarget target, TestCase testCase){
 

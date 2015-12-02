@@ -50,6 +50,7 @@ import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.acls.model.UnloadedSidException;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.squashtest.tm.core.foundation.collection.Filtering;
 import org.squashtest.tm.core.foundation.collection.Sorting;
@@ -69,17 +70,18 @@ import org.squashtest.tm.service.security.acls.model.ObjectAclService;
  */
 
 /**
- * 
+ *
  * When one update the Acl of an object (ie the permissions of a user), one want to refresh the aclCache if there is
  * one. The right way to do this would have been to delegate such task to the LookupStrategy when it's relevant to do
  * so. However we cannot subclass BasicLookupStrategy because it's final and duplicating its code for a class of ours
  * would be illegal.
- * 
+ *
  * So we're bypassing the cache encapsulation and expose it right here.
- * 
- * 
+ *
+ *
  * @author bsiri
  */
+@Service("squashtest.core.security.AclService")
 @Transactional
 public class JdbcManageableAclService extends JdbcAclService implements ManageableAclService, ObjectAclService {
 
@@ -89,14 +91,9 @@ public class JdbcManageableAclService extends JdbcAclService implements Manageab
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JdbcManageableAclService.class);
 
-	private AclCache aclCache;
+	private final AclCache aclCache;
 
-	public void setAclCache(AclCache aclCache) {
-		this.aclCache = aclCache;
-	}
-
-	@Inject
-	private DerivedPermissionsManager derivedManager;
+	private final DerivedPermissionsManager derivedManager;
 
 
 	private final RowMapper<PermissionGroup> permissionGroupMapper = new RowMapper<PermissionGroup>() {
@@ -215,8 +212,12 @@ public class JdbcManageableAclService extends JdbcAclService implements Manageab
 			+ "where PARTY_ID = ?";
 	//IGNOREVIOLATIONS:START
 
-	public JdbcManageableAclService(DataSource dataSource, LookupStrategy lookupStrategy) {
+    @Inject
+	public JdbcManageableAclService(DataSource dataSource, LookupStrategy lookupStrategy, AclCache aclCache, DerivedPermissionsManager derivedManager) {
 		super(dataSource, lookupStrategy);
+        this.aclCache = aclCache;
+        this.derivedManager = derivedManager;
+        setFindChildrenQuery("select null as obj_id, null as class from ACL_OBJECT_IDENTITY where 0 = 1");
 	}
 
 
@@ -229,10 +230,10 @@ public class JdbcManageableAclService extends JdbcAclService implements Manageab
 	public void addNewResponsibility(@NotNull long partyId, @NotNull ObjectIdentity entityRef,
 			@NotNull String qualifiedName) {
 		jdbcTemplate.update(DELETE_PARTY_RESPONSABILITY_ENTRY,
-				new Object[] { partyId, entityRef.getIdentifier(), entityRef.getType() });
+            partyId, entityRef.getIdentifier(), entityRef.getType());
 
 		jdbcTemplate.update(INSERT_PARTY_ACL_RESPONSABILITY_SCOPE,
-				new Object[] { partyId, qualifiedName, entityRef.getType(), entityRef.getIdentifier() });
+            partyId, qualifiedName, entityRef.getType(), entityRef.getIdentifier());
 
 		derivedManager.updateDerivedPermissions(partyId);
 
@@ -266,8 +267,7 @@ public class JdbcManageableAclService extends JdbcAclService implements Manageab
 	 */
 	@Override
 	public void removeAllResponsibilities(ObjectIdentity entityRef) {
-		jdbcTemplate.update(DELETE_ALL_RESPONSABILITY_ENTRIES,
-				new Object[] { entityRef.getIdentifier(), entityRef.getType() });
+		jdbcTemplate.update(DELETE_ALL_RESPONSABILITY_ENTRIES, entityRef.getIdentifier(), entityRef.getType());
 
 		derivedManager.updateDerivedPermissions(entityRef);
 
@@ -285,13 +285,12 @@ public class JdbcManageableAclService extends JdbcAclService implements Manageab
 	/**
 	 * Removes all responsibilities a user might have on a entity. In other words, the given user will no longer have
 	 * any permission on the entity.
-	 * 
+	 *
 	 * @param partyId
-	 * @param objectIdentity
+	 * @param entityRef
 	 */
 	public void removeAllResponsibilities(@NotNull long partyId, @NotNull ObjectIdentity entityRef) {
-		jdbcTemplate.update(DELETE_PARTY_RESPONSABILITY_ENTRY,
-				new Object[] { partyId, entityRef.getIdentifier(), entityRef.getType() });
+		jdbcTemplate.update(DELETE_PARTY_RESPONSABILITY_ENTRY, partyId, entityRef.getIdentifier(), entityRef.getType());
 
 
 		derivedManager.updateDerivedPermissions(partyId, entityRef);
@@ -362,8 +361,7 @@ public class JdbcManageableAclService extends JdbcAclService implements Manageab
 		}
 
 		try {
-			return Long.valueOf(jdbcTemplate.queryForLong(SELECT_OBJECT_IDENTITY_PRIMARY_KEY, new Object[] {
-					objectIdentity.getType(), objectIdentity.getIdentifier() }));
+			return jdbcTemplate.queryForLong(SELECT_OBJECT_IDENTITY_PRIMARY_KEY, objectIdentity.getType(), objectIdentity.getIdentifier());
 		} catch (DataAccessException notFound) {
 			return null;
 		}
@@ -381,7 +379,7 @@ public class JdbcManageableAclService extends JdbcAclService implements Manageab
 
 	@Override
 	public List<Object[]> retrieveClassAclGroupFromPartyId(@NotNull long partyId, String qualifiedClassName) {
-		List<String> qualifiedClassNames = new ArrayList<String>();
+		List<String> qualifiedClassNames = new ArrayList<>();
 		qualifiedClassNames.add(qualifiedClassName);
 		return retrieveClassAclGroupFromPartyId(partyId, qualifiedClassNames);
 	}
@@ -401,7 +399,7 @@ public class JdbcManageableAclService extends JdbcAclService implements Manageab
 	@Override
 	public List<Object[]> retrieveClassAclGroupFromUserLogin(String userLogin,
 			String qualifiedClassName) {
-		List<String> qualifiedClassNames = new ArrayList<String>();
+		List<String> qualifiedClassNames = new ArrayList<>();
 		qualifiedClassNames.add(qualifiedClassName);
 		return retrieveClassAclGroupFromUserLogin(userLogin,qualifiedClassNames);
 	}
@@ -418,7 +416,7 @@ public class JdbcManageableAclService extends JdbcAclService implements Manageab
 	//TODO
 	@Override
 	public List<Object[]> retrieveClassAclGroupFromPartyId(@NotNull long partyId, String qualifiedClassName, Sorting sorting, Filtering filtering) {
-		List<String> qualifiedClassNames = new ArrayList<String>();
+		List<String> qualifiedClassNames = new ArrayList<>();
 		qualifiedClassNames.add(qualifiedClassName);
 		return retrieveClassAclGroupFromPartyId(partyId,qualifiedClassNames);
 	}
@@ -462,7 +460,7 @@ public class JdbcManageableAclService extends JdbcAclService implements Manageab
 
 	@Override
 	public List<Long> findObjectWithoutPermissionByPartyId(long partyId, String qualifiedClass) {
-		List<String> qualifiedClassNames = new ArrayList<String>();
+		List<String> qualifiedClassNames = new ArrayList<>();
 		qualifiedClassNames.add(qualifiedClass);
 		return findObjectWithoutPermissionByPartyId(partyId,qualifiedClassNames);
 	}
@@ -478,7 +476,7 @@ public class JdbcManageableAclService extends JdbcAclService implements Manageab
 
 		List<BigInteger> reslult = jdbcTemplate.queryForList(FIND_OBJECT_WITHOUT_PERMISSION_BY_PARTY, new Object[] {
 				adaptedQualifiedClasses.get(0),adaptedQualifiedClasses.get(1), partyId }, BigInteger.class);
-		List<Long> finalResult = new ArrayList<Long>();
+		List<Long> finalResult = new ArrayList<>();
 		for (BigInteger bigInteger : reslult) {
 			finalResult.add(bigInteger.longValue());
 		}
@@ -489,13 +487,13 @@ public class JdbcManageableAclService extends JdbcAclService implements Manageab
 	 */
 	@Override
 	public List<String> findUsersWithExecutePermission(List<ObjectIdentity> entityRefs) {
-		List<Permission> permissions = new ArrayList<Permission>();
+		List<Permission> permissions = new ArrayList<>();
 		permissions.add(CustomPermission.EXECUTE);
 		return findUsersWithPermissions(entityRefs, permissions);
 	}
 
 	private List<String> findUsersWithPermissions(List<ObjectIdentity> entityRefs, List<Permission> permissionsList) {
-		List<String> resultSidList = new ArrayList<String>();
+		List<String> resultSidList = new ArrayList<>();
 		Collection<Acl> aclList;
 		try {
 			aclList = readAclsById(entityRefs).values();
@@ -509,8 +507,8 @@ public class JdbcManageableAclService extends JdbcAclService implements Manageab
 
 			for (AccessControlEntry ctrlEntry : aces) {
 
-				List<Sid> sids = new ArrayList<Sid>();
-				List<Permission> permissions = new ArrayList<Permission>();
+				List<Sid> sids = new ArrayList<>();
+				List<Permission> permissions = new ArrayList<>();
 				for (Permission permission : permissionsList) {
 					permissions.add(permission);
 				}
@@ -525,22 +523,12 @@ public class JdbcManageableAclService extends JdbcAclService implements Manageab
 				} catch (NotFoundException ex) {
 					// this may happen quite often and is not an error case so we fine-grain log and then ignore
 					LOGGER.debug("Error while processing acl list ", ex);
-					continue;
 
-					// not too sure about what should be done with other exceptions so we warn and then ignore
-				} catch (UnloadedSidException ex) {
+				} catch (UnloadedSidException | ClassCastException | NullPointerException ex) {
+                    // not too sure about what should be done with other exceptions so we warn and then ignore
 					LOGGER.warn("Error while processing acl list ", ex);
-					continue;
 
-				} catch (ClassCastException ex) {
-					LOGGER.warn("Error while processing acl list ", ex);
-					continue;
-
-				} catch (NullPointerException ex) {
-					LOGGER.warn("Error while processing acl list ", ex);
-					continue;
-
-				}
+                }
 			}
 		}
 
@@ -552,7 +540,7 @@ public class JdbcManageableAclService extends JdbcAclService implements Manageab
 	 */
 	@Override
 	public List<String> findUsersWithWritePermission(@NotNull List<ObjectIdentity> entityRefs) {
-		List<Permission> permissions = new ArrayList<Permission>();
+		List<Permission> permissions = new ArrayList<>();
 		permissions.add(BasePermission.WRITE);
 		return findUsersWithPermissions(entityRefs, permissions);
 	}
@@ -624,7 +612,7 @@ public class JdbcManageableAclService extends JdbcAclService implements Manageab
 
 	@Override
 	public List<Long> findPartiesWithoutPermissionByObject(long objectId, String qualifiedClassName) {
-		List<String> qualifiedClassNames = new ArrayList<String>();
+		List<String> qualifiedClassNames = new ArrayList<>();
 		qualifiedClassNames.add(qualifiedClassName);
 		qualifiedClassNames.add(qualifiedClassName);
 		return findPartiesWithoutPermissionByObject(objectId,qualifiedClassNames);
@@ -645,7 +633,7 @@ public class JdbcManageableAclService extends JdbcAclService implements Manageab
 				objectId
 		},
 		BigInteger.class);
-		List<Long> finalResult = new ArrayList<Long>();
+		List<Long> finalResult = new ArrayList<>();
 		for (BigInteger bigInteger : result) {
 			finalResult.add(bigInteger.longValue());
 		}

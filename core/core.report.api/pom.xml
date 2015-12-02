@@ -4,18 +4,28 @@
   <parent>
     <groupId>org.squashtest.tm</groupId>
     <artifactId>squashtest-csp-core</artifactId>
-    <version>1.13.0.IT104-SNAPSHOT</version>
+    <version>1.13.0.NOSGI-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.squashtest.tm</groupId>
   <artifactId>core.report.api</artifactId>
-  <packaging>bundle</packaging>
   <name>${project.groupId}.${project.artifactId}</name>
   <description>Squash TM API required to provide reports as plugins</description>
 
   <properties>
     <sonar.java.coveragePlugin>cobertura</sonar.java.coveragePlugin>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.squashtest.tm</groupId>
+        <artifactId>squash-tm-bom</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
 
@@ -28,32 +38,27 @@
       <artifactId>core.api</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- ====== SQUASHTEST ====== -->
     <dependency>
       <groupId>org.squashtest.tm</groupId>
       <artifactId>core.foundation</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.eclipse.jetty.orbit</groupId>
-      <artifactId>javax.servlet</artifactId>
-    </dependency>
 
-    <!-- ====== /SQUASHTEST ====== -->
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>org.springframework.context</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>org.springframework.web.servlet</artifactId>
-    </dependency>
     <dependency>
       <groupId>net.sf.jasperreports</groupId>
-      <artifactId>org.squashtest.net.sf.jasperreports</artifactId>
-      <scope>compile</scope>
+      <artifactId>jasperreports</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-aop</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.squashtest.tm</groupId>
       <artifactId>spock-test-dependencies</artifactId>
@@ -72,22 +77,9 @@
         <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
 
-      <!-- ====== SPOCK TESTS ====== -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-      </plugin>
-      <!-- ====== /SPOCK TESTS ====== -->
-
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <_include>bnd.bnd</_include>
-          </instructions>
-        </configuration>
       </plugin>
     </plugins>
   </build>

@@ -28,19 +28,22 @@ import org.squashtest.tm.service.chart.ChartModificationService;
 import org.squashtest.tm.web.internal.controller.chart.JsonChartInstance;
 import org.squashtest.tm.web.internal.model.json.JsonCustomReportChartBinding;
 
-@Component
+import javax.inject.Inject;
+
+@Component("customReport.chartBindingBuilder")
 @Scope("prototype")
 public class JsonCustomReportChartBindingBuilder {
-	
+
 	private ChartModificationService chartService;
-	
+
 	private JsonCustomReportChartBinding json = new JsonCustomReportChartBinding();
-	
+
+	@Inject
 	public JsonCustomReportChartBindingBuilder(ChartModificationService chartService) {
 		super();
 		this.chartService = chartService;
 	}
-	
+
 	public JsonCustomReportChartBinding build(CustomReportChartBinding binding){
 		json.setId(binding.getId());
 		json.setChartDefinitionId(binding.getChart().getId());
@@ -52,6 +55,7 @@ public class JsonCustomReportChartBindingBuilder {
 		ChartInstance chartInstance = chartService.generateChart(binding.getChart());
 		JsonChartInstance jsonChartInstance = new JsonChartInstance(chartInstance);
 		json.setChartInstance(jsonChartInstance);
+
 		return json;
 	}
 

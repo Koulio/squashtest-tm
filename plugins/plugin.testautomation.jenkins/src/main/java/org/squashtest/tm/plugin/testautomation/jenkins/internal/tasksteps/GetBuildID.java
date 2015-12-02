@@ -20,8 +20,8 @@
  */
 package org.squashtest.tm.plugin.testautomation.jenkins.internal.tasksteps;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.squashtest.tm.plugin.testautomation.jenkins.beans.Build;
 import org.squashtest.tm.plugin.testautomation.jenkins.beans.BuildList;
 import org.squashtest.tm.plugin.testautomation.jenkins.internal.JsonParser;
@@ -31,38 +31,36 @@ import org.squashtest.tm.plugin.testautomation.jenkins.internal.tasks.BuildStep;
 import org.squashtest.tm.service.testautomation.spi.NotFoundException;
 
 
-public class GetBuildID extends BuildStep<GetBuildID> implements HttpBasedStep{
+public class GetBuildID extends BuildStep<GetBuildID> implements HttpBasedStep {
 
 	/* ********* technically needed for the computation ************** */
-	
-	private RequestExecutor requestExecutor = RequestExecutor.getInstance();
-	
-	private HttpClient client;
-	
-	private HttpMethod method;
-	
+
+	private CloseableHttpClient client;
+
+	private HttpUriRequest method;
+
 	private JsonParser parser;
 
 	private BuildAbsoluteId absoluteId;
-	
-	
+
+
 	// ****** the output here is stored when available in the absolueId#setBuildId ***** 
-	
+
 	// ****** accessors ********** */
-	
-	
+
+
 	@Override
-	public void setClient(HttpClient client) {
+	public void setClient(CloseableHttpClient client) {
 		this.client = client;
 	}
 
 	@Override
-	public void setMethod(HttpMethod method) {
+	public void setMethod(HttpUriRequest method) {
 		this.method = method;
 	}
 
 	@Override
-	public void setParser(JsonParser parser){
+	public void setParser(JsonParser parser) {
 		this.parser = parser;
 	}
 
@@ -70,11 +68,11 @@ public class GetBuildID extends BuildStep<GetBuildID> implements HttpBasedStep{
 	public void setBuildAbsoluteId(BuildAbsoluteId absoluteId) {
 		this.absoluteId = absoluteId;
 	}
-	
-	
+
+
 	// ************ getters ************
-	
-	public Integer getBuildID(){
+
+	public Integer getBuildID() {
 		return absoluteId.getBuildId();
 	}
 
@@ -83,7 +81,7 @@ public class GetBuildID extends BuildStep<GetBuildID> implements HttpBasedStep{
 	public GetBuildID(BuildProcessor processor) {
 		super(processor);
 	}
-	
+
 	// ************ code ***************** 
 
 
@@ -93,28 +91,26 @@ public class GetBuildID extends BuildStep<GetBuildID> implements HttpBasedStep{
 	}
 
 
-	
 	@Override
 	public void perform() throws Exception {
-		
-		String json = requestExecutor.execute(client, method);
-		
+
+		String json = RequestExecutor.getInstance().execute(client, method);
+
 		BuildList buildList = parser.getBuildListFromJson(json);
-		
-		Build buildOfInterest =  buildList.findByExternalId(absoluteId.getExternalId());
-		
-		if (buildOfInterest!=null){
-			int buildId = buildOfInterest.getId();			
+
+		Build buildOfInterest = buildList.findByExternalId(absoluteId.getExternalId());
+
+		if (buildOfInterest != null) {
+			int buildId = buildOfInterest.getId();
 			absoluteId.setBuildId(buildId);
-		}
-		else{
-			throw new NotFoundException("TestAutomationConnector : the requested build for project "+absoluteId.toString()+" cannot be found");
+		} else {
+			throw new NotFoundException("TestAutomationConnector : the requested build for project " + absoluteId.toString() + " cannot be found");
 		}
 	}
 
 	@Override
 	public void reset() {
-		
+
 	}
 
 	@Override

@@ -20,19 +20,11 @@
  */
 package org.squashtest.tm.service.internal.milestone;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.squashtest.tm.domain.milestone.Milestone;
 import org.squashtest.tm.domain.milestone.MilestoneHolder;
@@ -49,11 +41,15 @@ import org.squashtest.tm.service.security.PermissionEvaluationService;
 import org.squashtest.tm.service.security.UserContextService;
 import org.squashtest.tm.service.user.UserAccountService;
 
+import javax.inject.Inject;
+import java.util.*;
+
 @Service("CustomMilestoneManager")
 public class CustomMilestoneManagerServiceImpl implements CustomMilestoneManager {
 	private static final Logger LOGGER = LoggerFactory.getLogger(CustomMilestoneManagerServiceImpl.class);
 
-	private static final String ADMIN_ROLE = "ROLE_ADMIN";
+// TODO replace by the app wide const	
+private static final String ADMIN_ROLE = "ROLE_ADMIN";
 
 	@Inject
 	private ProjectFinder projectFinder;
@@ -126,20 +122,12 @@ public class CustomMilestoneManagerServiceImpl implements CustomMilestoneManager
 	}
 
 	private boolean isGlobal(Milestone milestone) {
-		boolean isGlobal = false;
-		if (milestone.getRange().equals(MilestoneRange.GLOBAL)) {
-			isGlobal = true;
-		}
-		return isGlobal;
+		return MilestoneRange.GLOBAL.equals(milestone.getRange());
 	}
 
 	private boolean isCreatedBySelf(Milestone milestone) {
-		boolean isCreatedBySelf = false;
 		String myName = userContextService.getUsername();
-		if (myName.equals(milestone.getOwner().getLogin())) {
-			isCreatedBySelf = true;
-		}
-		return isCreatedBySelf;
+		return myName.equals(milestone.getOwner().getLogin());
 	}
 
 	@Override
@@ -167,7 +155,7 @@ public class CustomMilestoneManagerServiceImpl implements CustomMilestoneManager
 	@Override
 	public List<Long> findAllIdsOfEditableMilestone() {
 		List<Milestone> milestones = findAll();
-		List<Long> ids = new ArrayList<Long>();
+		List<Long> ids = new ArrayList<>();
 		for (Milestone milestone : milestones) {
 			if (canEditMilestone(milestone.getId())) {
 				ids.add(milestone.getId());
@@ -180,7 +168,7 @@ public class CustomMilestoneManagerServiceImpl implements CustomMilestoneManager
 	public List<Milestone> findAllVisibleToCurrentManager() {
 
 		List<Milestone> allMilestones = findAll();
-		List<Milestone> milestones = new ArrayList<Milestone>();
+		List<Milestone> milestones = new ArrayList<>();
 
 		if (permissionEvaluationService.hasRole(ADMIN_ROLE)) {
 			milestones.addAll(allMilestones);
@@ -223,15 +211,12 @@ public class CustomMilestoneManagerServiceImpl implements CustomMilestoneManager
 	}
 
 	private boolean canIManageThisProject(GenericProject project) {
-		if (permissionEvaluationService.hasRoleOrPermissionOnObject("ADMIN", "MANAGEMENT", project)) {
-			return true;
-		}
-		return false;
+		return permissionEvaluationService.hasRoleOrPermissionOnObject("ADMIN", "MANAGEMENT", project);
 	}
 
 	private List<GenericProject> getProjectICanManage(Collection<GenericProject> projects) {
 
-		List<GenericProject> manageableProjects = new ArrayList<GenericProject>();
+		List<GenericProject> manageableProjects = new ArrayList<>();
 
 		for (GenericProject project : projects) {
 			if (canIManageThisProject(project)) {
@@ -252,7 +237,7 @@ public class CustomMilestoneManagerServiceImpl implements CustomMilestoneManager
 		Milestone mother = findById(motherId);
 		boolean copyAllPerimeter = permissionEvaluationService.hasRole(ADMIN_ROLE)
 				|| !isGlobal(mother)
-				&& isCreatedBySelf(mother);
+			&& isCreatedBySelf(mother);
 
 		bindProjectsAndPerimeter(mother, milestone, copyAllPerimeter);
 		bindRequirements(mother, milestone, bindToRequirements, copyAllPerimeter);
@@ -282,10 +267,10 @@ public class CustomMilestoneManagerServiceImpl implements CustomMilestoneManager
 			milestone.addProjectsToPerimeter(mother.getPerimeter());
 		} else {
 
-			List<GenericProject> projects = new ArrayList<GenericProject>(mother.getProjects());
+			List<GenericProject> projects = new ArrayList<>(mother.getProjects());
 			projects.retainAll(projectFinder.findAllICanManage());
 
-			List<GenericProject> perim = new ArrayList<GenericProject>(mother.getPerimeter());
+			List<GenericProject> perim = new ArrayList<>(mother.getPerimeter());
 			perim.retainAll(projectFinder.findAllICanManage());
 
 			milestone.bindProjects(projects);
@@ -294,7 +279,6 @@ public class CustomMilestoneManagerServiceImpl implements CustomMilestoneManager
 		}
 
 	}
-
 
 
 	private void bindTestCases(Milestone mother, Milestone milestone, boolean bindToTestCases, boolean copyAllPerimeter) {
@@ -308,7 +292,7 @@ public class CustomMilestoneManagerServiceImpl implements CustomMilestoneManager
 	}
 
 	private void bindRequirements(Milestone mother, Milestone milestone, boolean bindToRequirements,
-			boolean copyAllPerimeter) {
+	                              boolean copyAllPerimeter) {
 		if (bindToRequirements) {
 			for (RequirementVersion req : mother.getRequirementVersions()) {
 				if (copyAllPerimeter || canIManageThisProject(req.getProject())) {
@@ -350,26 +334,26 @@ public class CustomMilestoneManagerServiceImpl implements CustomMilestoneManager
 
 
 	private void synchronizeRequirementVersions(Milestone source, Milestone target, boolean isUnion,
-			boolean extendPerimeter) {
+	                                            boolean extendPerimeter) {
 		milestoneDao.synchronizeRequirementVersions(source.getId(), target.getId(),
-				getProjectsToSynchronize(source, target, extendPerimeter, isUnion));
+			getProjectsToSynchronize(source, target, extendPerimeter, isUnion));
 		if (isUnion) {
 			milestoneDao.synchronizeRequirementVersions(target.getId(), source.getId(),
-					getProjectsToSynchronize(target, source, extendPerimeter, isUnion));
+				getProjectsToSynchronize(target, source, extendPerimeter, isUnion));
 		}
 	}
 
 	private void synchronizeTestCases(Milestone source, Milestone target, boolean isUnion, boolean extendPerimeter) {
 		milestoneDao.synchronizeTestCases(source.getId(), target.getId(),
-				getProjectsToSynchronize(source, target, extendPerimeter, isUnion));
+			getProjectsToSynchronize(source, target, extendPerimeter, isUnion));
 		if (isUnion) {
 			milestoneDao.synchronizeTestCases(target.getId(), source.getId(),
-					getProjectsToSynchronize(target, source, extendPerimeter, isUnion));
+				getProjectsToSynchronize(target, source, extendPerimeter, isUnion));
 		}
 	}
 
 	private Set<GenericProject> getProjectsToSynchronizeForProjectManager(Set<GenericProject> result, Milestone target,
-			boolean extendPerimeter) {
+	                                                                      boolean extendPerimeter) {
 		if (extendPerimeter && isCreatedBySelf(target)) {
 			result.addAll(target.getPerimeter());
 		} else {
@@ -383,9 +367,9 @@ public class CustomMilestoneManagerServiceImpl implements CustomMilestoneManager
 	}
 
 	private List<Long> getProjectsToSynchronize(Milestone source, Milestone target, boolean extendPerimeter,
-			boolean isUnion) {
+	                                            boolean isUnion) {
 
-		Set<GenericProject> result = new HashSet<GenericProject>(source.getPerimeter());
+		Set<GenericProject> result = new HashSet<>(source.getPerimeter());
 
 		if (permissionEvaluationService.hasRole(ADMIN_ROLE)) {
 
@@ -395,7 +379,7 @@ public class CustomMilestoneManagerServiceImpl implements CustomMilestoneManager
 			result = getProjectsToSynchronizeForProjectManager(result, target, extendPerimeter);
 		}
 
-		List<Long> ids = new ArrayList<Long>();
+		List<Long> ids = new ArrayList<>();
 		for (GenericProject p : result) {
 			ids.add(p.getId());
 		}
@@ -403,7 +387,7 @@ public class CustomMilestoneManagerServiceImpl implements CustomMilestoneManager
 	}
 
 	private Set<GenericProject> getProjectsToSynchronizeForProjectForAdmin(Set<GenericProject> result,
-			Milestone source, Milestone target, boolean isUnion) {
+	                                                                       Milestone source, Milestone target, boolean isUnion) {
 
 		if (isUnion && isGlobal(source) && isGlobal(target) || !isUnion && isGlobal(target)) {
 			result.addAll(target.getPerimeter());
@@ -439,7 +423,7 @@ public class CustomMilestoneManagerServiceImpl implements CustomMilestoneManager
 	}
 
 	private void projectManagerSynchronizePerimeterAndProjects(Milestone source, Milestone target,
-			boolean extendPerimeter) {
+	                                                           boolean extendPerimeter) {
 
 		if (isCreatedBySelf(target) && extendPerimeter) {
 			// can extend perimeter only if own milestone
@@ -449,9 +433,9 @@ public class CustomMilestoneManagerServiceImpl implements CustomMilestoneManager
 	}
 
 	private void synchronizePerimeterAndProjects(Milestone source, Milestone target, boolean extendPerimeter,
-			boolean isUnion) {
+	                                             boolean isUnion) {
 
-		if (permissionEvaluationService.hasRole(ADMIN_ROLE)) {
+		if (permissionEvaluationService.hasRole("ROLE_ADMIN")) {
 			adminSynchronizePerimeterAndProjects(source, target, isUnion);
 		} else {
 			projectManagerSynchronizePerimeterAndProjects(source, target, extendPerimeter);

@@ -20,20 +20,17 @@
  */
 package org.squashtest.csp.core.bugtracker.service
 
-
-import java.util.List;
-import java.util.concurrent.Future;
-
 import org.springframework.context.i18n.LocaleContext
 import org.squashtest.csp.core.bugtracker.domain.BTIssue
 import org.squashtest.csp.core.bugtracker.domain.BTProject
 import org.squashtest.csp.core.bugtracker.domain.BugTracker
 import org.squashtest.csp.core.bugtracker.domain.Priority
 import org.squashtest.csp.core.bugtracker.spi.BugTrackerInterfaceDescriptor
-import org.squashtest.tm.bugtracker.advanceddomain.DelegateCommand;
-import org.squashtest.tm.bugtracker.definition.Attachment;
-import org.squashtest.tm.bugtracker.definition.RemoteIssue;
+import org.squashtest.tm.bugtracker.advanceddomain.DelegateCommand
+import org.squashtest.tm.bugtracker.definition.Attachment
+import org.squashtest.tm.bugtracker.definition.RemoteIssue
 
+import java.util.concurrent.Future
 
 class StubBugTrackerService implements BugTrackersService {
 
@@ -42,12 +39,10 @@ class StubBugTrackerService implements BugTrackersService {
 		return false;
 	}
 
-	@Override
 	public boolean isBugTrackerDefined() {
 		return false;
 	}
 
-	@Override
 	public boolean isCredentialsNeeded() {
 		return false;
 	}
@@ -67,7 +62,6 @@ class StubBugTrackerService implements BugTrackersService {
 		return null;
 	}
 
-	@Override
 	public List<Priority> getPriorities(BugTracker bugTracker) {
 		return null;
 	}
@@ -82,7 +76,6 @@ class StubBugTrackerService implements BugTrackersService {
 		return null;
 	}
 
-	@Override
 	public BTIssue createIssue(BTIssue issue, BugTracker bugTracker) {
 		return null;
 	}

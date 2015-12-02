@@ -20,56 +20,42 @@
  */
 package org.squashtest.tm.service.internal.library;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.AnalyzerWrapper;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Fieldable;
-import org.apache.lucene.util.Version;
+import org.apache.lucene.analysis.util.CharArraySet;
 
-public class StandardAnalyzerWithoutStopWords extends Analyzer{
+public class StandardAnalyzerWithoutStopWords extends AnalyzerWrapper {
+    /**
+     * As recommended per AnalyzerWrapper(...) javadoc, we shall use the wrapped analyser's Reuse Strategy.
+     * Yet the recommended idiom is not possible : super(delegate.getReuseStrategy()) because super() must be the first
+     * instruction of a constructor.
+     */
+    private static final ReuseStrategy REUSE_STRATEGY = new StandardAnalyzer(new CharArraySet(1, true)).getReuseStrategy();
 
-	private StandardAnalyzer standardAnalyzer;
+    private StandardAnalyzer standardAnalyzer = new StandardAnalyzer(new CharArraySet(1, true));
 
-	public StandardAnalyzerWithoutStopWords(Version version){
-		Set<String> stopwords = new HashSet<String>();
-		standardAnalyzer = new StandardAnalyzer(version, stopwords);
-	}
-	
-	public StandardAnalyzerWithoutStopWords(){
-		Set<String> stopwords = new HashSet<String>();
-		standardAnalyzer = new StandardAnalyzer(Version.LUCENE_36, stopwords);
-	}
+    public StandardAnalyzerWithoutStopWords() {
+        super(REUSE_STRATEGY);
+    }
 
-	public int	getMaxTokenLength(){
-		return standardAnalyzer.getMaxTokenLength(); 			
-	}
+    @Override
+    protected Analyzer getWrappedAnalyzer(String fieldName) {
+        return standardAnalyzer;
+    }
 
-	public void setMaxTokenLength(int length){
-		standardAnalyzer.setMaxTokenLength(length); 	
-	}
-	
-	public TokenStream reusableTokenStream(String fieldName, Reader reader) throws IOException{
-		return standardAnalyzer.reusableTokenStream(fieldName, reader);
-	}
-	
-	public TokenStream tokenStream(String fieldName, Reader reader){
-		return standardAnalyzer.tokenStream(fieldName, reader);
-	}
-	
-	public int getOffsetGap(Fieldable field){
-		return standardAnalyzer.getOffsetGap(field);
-	}
-	
-	public int getPositionIncrementGap(String fieldName){
-		return standardAnalyzer.getPositionIncrementGap(fieldName);
-	}
-	
-	public Set<?> getStopwordSet(){
-		return standardAnalyzer.getStopwordSet();
-	}
+    public int getMaxTokenLength() {
+
+        return standardAnalyzer.getMaxTokenLength();
+    }
+
+    public void setMaxTokenLength(int length) {
+
+        standardAnalyzer.setMaxTokenLength(length);
+    }
+
+    public CharArraySet getStopwordSet() {
+
+        return standardAnalyzer.getStopwordSet();
+    }
 }

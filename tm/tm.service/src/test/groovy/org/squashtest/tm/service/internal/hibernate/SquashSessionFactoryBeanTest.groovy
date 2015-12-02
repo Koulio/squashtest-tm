@@ -18,8 +18,9 @@
  *     You should have received a copy of the GNU Lesser General Public License
  *     along with this software.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.squashtest.tm.service.internal.hibernate;
+package org.squashtest.tm.service.internal.hibernate
 
+import org.squashtest.tm.service.SquashSessionFactoryBean;
 import spock.lang.Specification;
 import spock.lang.Unroll;
 
@@ -36,25 +37,13 @@ class SquashSessionFactoryBeanTest extends Specification {
 	Properties hibernateProps = Mock()
 
 	def setup() {
-		factoryBean.dialectsSupportingGroupConcat = [
-			"org.hibernate.dialect.MySQL"
-		]
-		factoryBean.dialectsSupportingStringAgg = [
-			"org.hibernate.dialect.PostgreSQL"
-		]
 		factoryBean.setHibernateProperties(hibernateProps)
 	}
 
 	@Unroll
 	def "should substitute placeholder with system prop #dialect"() {
-		given:
-		System.setProperty("db.dialect", dialect)
-
-		and:
-		hibernateProps.getProperty("hibernate.dialect") >> '${db.dialect}'
-
 		when:
-		def func = factoryBean.findGroupConcatSupport()
+		def func = factoryBean.groupConcatFunction(dialect)
 
 		then:
 		func == type
@@ -63,5 +52,6 @@ class SquashSessionFactoryBeanTest extends Specification {
 		dialect								| type
 		"org.hibernate.dialect.PostgreSQL"	| FnSupport.STR_AGG
 		"org.hibernate.dialect.MySQL"		| FnSupport.GROUP_CONCAT
+		"org.hibernate.dialect.H2"		| FnSupport.GROUP_CONCAT
 	}
 }

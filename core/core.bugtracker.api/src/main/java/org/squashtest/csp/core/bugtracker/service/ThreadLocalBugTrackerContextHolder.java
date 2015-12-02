@@ -20,7 +20,7 @@
  */
 package org.squashtest.csp.core.bugtracker.service;
 
-import org.apache.commons.lang.NullArgumentException;
+import org.squashtest.tm.core.foundation.exception.NullArgumentException;
 
 /**
  * Thread-local based implementation of {@link BugTrackerContext}
@@ -29,7 +29,7 @@ import org.apache.commons.lang.NullArgumentException;
  *
  */
 public class ThreadLocalBugTrackerContextHolder implements BugTrackerContextHolder {
-	private final ThreadLocal<BugTrackerContext> contextHolder = new ThreadLocal<BugTrackerContext>();
+	private final ThreadLocal<BugTrackerContext> contextHolder = new ThreadLocal<>();
 
 	@Override
 	public BugTrackerContext getContext() {

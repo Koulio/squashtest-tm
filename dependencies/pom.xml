@@ -4,14 +4,13 @@
   <parent>
     <groupId>org.squashtest.tm</groupId>
     <artifactId>squash-tm</artifactId>
-    <version>1.13.0.IT104-SNAPSHOT</version>
+    <version>1.13.0.NOSGI-SNAPSHOT</version>
   </parent>
   <artifactId>squashtest-csp-dependencies</artifactId>
   <packaging>pom</packaging>
   <name>squashtest-csp-dependencies</name>
   <description>This modules contains dependencies-grouping modules</description>
   <modules>
-    <module>springdm-bundle-dependencies</module>
     <module>spock-test-dependencies</module>
     <module>hibernate-dependencies</module>
   </modules>

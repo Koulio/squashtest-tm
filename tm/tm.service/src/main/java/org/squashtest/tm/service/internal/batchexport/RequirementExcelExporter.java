@@ -32,7 +32,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -86,7 +86,7 @@ public class RequirementExcelExporter {
 		RequirementSheetColumn.REQ_VERSION_CREATED_BY,
 		RequirementSheetColumn.REQ_VERSION_LAST_MODIFIED_ON,
 		RequirementSheetColumn.REQ_VERSION_LAST_MODIFIED_BY};
-	
+
 	private static final List<RequirementSheetColumn> REQUIREMENT_COLUMNS_MILESTONES = Arrays.asList((RequirementSheetColumn[])ArrayUtils.add(BASIC_REQ_COLUMNS,  RequirementSheetColumn.REQ_VERSION_MILESTONE));
 
 	private static final List<RequirementSheetColumn> REQUIREMENT_COLUMNS = Arrays.asList(BASIC_REQ_COLUMNS);

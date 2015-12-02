@@ -32,7 +32,7 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -315,7 +315,7 @@ public class ValidationFacility implements Facility, ValidationFacilitySubservic
 			}
 		}
 	}
-	
+
 	/**
 	 * Will replace {@code mixin.createdBy} and {@code mixin.createdOn} if the
 	 * values are invalid :
@@ -1248,7 +1248,7 @@ public class ValidationFacility implements Facility, ValidationFacilitySubservic
 		//return to avoid nasty exception in nexts checks
 		if (logs.hasCriticalErrors()) {
 			return logs;
-		}
+}
 		
 		logs.addEntry(checkPermissionOnProject(PERM_IMPORT, target, target));
 

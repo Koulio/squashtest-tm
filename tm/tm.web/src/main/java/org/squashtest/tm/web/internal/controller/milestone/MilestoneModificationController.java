@@ -31,7 +31,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -93,7 +93,7 @@ public class MilestoneModificationController {
 		mav.addObject("userList", buildMarshalledUserMap(adminManager.findAllAdminOrManager()));
 		mav.addObject("canEdit", milestoneManager.canEditMilestone(milestoneId));
 		mav.addObject("isAdmin", permissionEvaluationService.hasRole("ROLE_ADMIN"));
-		mav.addObject("currentUser", StringEscapeUtils.escapeJavaScript(userService.findCurrentUser().getLogin()));
+		mav.addObject("currentUser", StringEscapeUtils.escapeEcmaScript(userService.findCurrentUser().getLogin()));
 		return mav;
 	}
 

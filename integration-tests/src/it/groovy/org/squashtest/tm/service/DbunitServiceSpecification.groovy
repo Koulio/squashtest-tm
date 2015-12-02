@@ -20,45 +20,42 @@
  */
 package org.squashtest.tm.service
 
-
-import java.util.List
-
-import javax.inject.Inject
-
-import org.hibernate.Query
-import org.hibernate.transform.ResultTransformer
-import org.hibernate.type.LongType
 import org.hibernate.ObjectNotFoundException
+import org.hibernate.Query
 import org.hibernate.Session
 import org.hibernate.SessionFactory
-import org.springframework.test.annotation.DirtiesContext;
+import org.hibernate.transform.ResultTransformer
+import org.hibernate.type.LongType
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.transaction.TransactionConfiguration
-
+import org.squashtest.it.config.DynamicServiceConfig
+import org.squashtest.it.config.ServiceSpecConfig
+import org.squashtest.it.config.UnitilsConfig
 import spock.lang.Specification
+
+import javax.inject.Inject
 
 /**
  * Superclass for a DB-driven DAO test. The test will populate the database using a DBUnit dataset with the same name as the test.
  * Subclasses should be annotated @UnitilsSupport
  */
-@ContextConfiguration(["classpath:service/dependencies-scan-context.xml", "classpath:unitils-datasource-context.xml",
-	"classpath*:META-INF/**/bundle-context.xml", "classpath*:META-INF/**/repository-context.xml",
-	"classpath*:META-INF/**/dynamicdao-context.xml",
-	"classpath*:META-INF/**/dynamicmanager-context.xml",
-	"classpath:it-config-context.xml"])
+@ContextConfiguration(classes = [ServiceSpecConfig, UnitilsConfig, DynamicServiceConfig, TmServiceConfig, RepositoryConfig, BugTrackerConfig, SchedulerConfig])
+@TestPropertySource(["classpath:no-validation-hibernate.properties"])
 @TransactionConfiguration(transactionManager = "squashtest.tm.hibernate.TransactionManager", defaultRollback = true)
 abstract class DbunitServiceSpecification extends Specification {
 
 	@Inject
 	private SessionFactory sessionFactory
 
-	protected Session getSession(){
+	protected Session getSession() {
 		return sessionFactory.getCurrentSession()
 	}
 
 	/*-------------------------------------------Private stuff-----------------------------------*/
-	protected boolean found(String tableName, String idColumnName, Long id){
-		String sql = "select count(*) from "+tableName+" where "+idColumnName+" = :id"
+
+	protected boolean found(String tableName, String idColumnName, Long id) {
+		String sql = "select count(*) from " + tableName + " where " + idColumnName + " = :id"
 		Query query = getSession().createSQLQuery(sql)
 		query.setParameter("id", id)
 
@@ -66,11 +63,11 @@ abstract class DbunitServiceSpecification extends Specification {
 		return (result != 0)
 	}
 
-	protected Integer countAll(String className){
-		return (Integer) getSession().createQuery("select count(entity) from "+className+" entity").uniqueResult()
+	protected Integer countAll(String className) {
+		return (Integer) getSession().createQuery("select count(entity) from " + className + " entity").uniqueResult()
 	}
 
-	protected boolean found(Class<?> entityClass, Object id){
+	protected boolean found(Class<?> entityClass, Object id) {
 		boolean found = false
 
 		try {
@@ -83,41 +80,40 @@ abstract class DbunitServiceSpecification extends Specification {
 		return found
 	}
 
-	protected boolean allDeleted(String className, List<Long> ids){
-		Query query = getSession().createQuery("from "+className+" where id in (:ids)")
+	protected boolean allDeleted(String className, List<Long> ids) {
+		Query query = getSession().createQuery("from " + className + " where id in (:ids)")
 		query.setParameterList("ids", ids, new LongType())
 		List<?> result = query.list()
 
 		return result.isEmpty()
 	}
 
-	protected Object findEntity(Class<?> entityClass, Long id){
+	protected Object findEntity(Class<?> entityClass, Long id) {
 		return getSession().get(entityClass, id)
 	}
 
-	protected List<Object> findAll(String className){
-		return getSession().createQuery("from "+className).list()
+	protected List<Object> findAll(String className) {
+		return getSession().createQuery("from " + className).list()
 	}
 
-	protected boolean allNotDeleted(String className, List<Long> ids){
-		Query query = getSession().createQuery("from "+className+" where id in (:ids)")
+	protected boolean allNotDeleted(String className, List<Long> ids) {
+		Query query = getSession().createQuery("from " + className + " where id in (:ids)")
 		query.setParameterList("ids", ids, new LongType())
 		List<?> result = query.list()
 
 		return result.size() == ids.size()
 	}
 
-	protected NewSQLQuery newSQLQuery(String query){
+	protected NewSQLQuery newSQLQuery(String query) {
 		return new NewSQLQuery(query, session)
 	}
 
-	protected Object executeSQL (String query){
+	protected Object executeSQL(String query) {
 		def q = newSQLQuery(query)
 		def expr = /(?is)\s*select.*/
-		if (query ==~ expr){
+		if (query ==~ expr) {
 			return q.list()
-		}
-		else{
+		} else {
 			q.update()
 			return null
 		}
@@ -128,50 +124,50 @@ abstract class DbunitServiceSpecification extends Specification {
 
 		Query query
 
-		public NewSQLQuery(String query, Session session){
+		public NewSQLQuery(String query, Session session) {
 			this.query = session.createSQLQuery(query)
-			this.query.setResultTransformer  new EasyResultTransformer()
+			this.query.setResultTransformer new EasyResultTransformer()
 		}
 
-		NewSQLQuery setParameter(String name, Object value){
+		NewSQLQuery setParameter(String name, Object value) {
 			query.setParameter(name, value)
 			return this
 		}
 
-		NewSQLQuery setParameter(String name, Object value, Object type){
+		NewSQLQuery setParameter(String name, Object value, Object type) {
 			query.setParameter(name, value, type)
 			return this
 		}
 
-		NewSQLQuery setParameterList(String name, Collection value){
+		NewSQLQuery setParameterList(String name, Collection value) {
 			query.setParameterList(name, value)
 			return this
 		}
 
-		NewSQLQuery setParameterList(String name, Collection value, Object type){
+		NewSQLQuery setParameterList(String name, Collection value, Object type) {
 			query.setParameterList(name, value, type)
 			return this
 		}
 
-		List list(){
+		List list() {
 			return query.list()
 		}
 
-		Object uniqueResult(){
+		Object uniqueResult() {
 			return query.uniqueResult()
 		}
 
-		void update(){
+		void update() {
 			query.executeUpdate()
 		}
 	}
 
 
-	class EasyResultTransformer implements ResultTransformer{
+	class EasyResultTransformer implements ResultTransformer {
 
 		@Override
 		public Object transformTuple(Object[] tuple, String[] aliases) {
-			for (int i=0;i<tuple.length;i++){
+			for (int i = 0; i < tuple.length; i++) {
 				def elem = tuple[i]
 				def converted = convert(elem)
 				tuple[i] = converted
@@ -181,16 +177,15 @@ abstract class DbunitServiceSpecification extends Specification {
 
 		@Override
 		public List transformList(List collection) {
-			if ( collection.findAll({it.length==1}).size() == collection.size() ){
+			if (collection.findAll({ it.length == 1 }).size() == collection.size()) {
 				return collection.flatten()
-			}
-			else{
+			} else {
 				return collection
 			}
 		}
 
-		Object convert(Object sourceOjbect){
-			(sourceOjbect instanceof BigInteger) ? ((BigInteger)sourceOjbect).longValue() : sourceOjbect
+		Object convert(Object sourceOjbect) {
+			(sourceOjbect instanceof BigInteger) ? ((BigInteger) sourceOjbect).longValue() : sourceOjbect
 		}
 	}
 

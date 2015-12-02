@@ -20,48 +20,60 @@
  */
 package org.squashtest.tm.web.internal.fileupload;
 
-import org.springframework.osgi.context.event.OsgiBundleApplicationContextEventMulticaster;
-import org.springframework.osgi.context.event.OsgiBundleApplicationContextListener;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.squashtest.tm.event.ConfigUpdateEvent;
 import org.squashtest.tm.service.configuration.ConfigurationService;
 
-public class SquashMultipartResolver extends CommonsMultipartResolver implements OsgiBundleApplicationContextListener<ConfigUpdateEvent> {
+/**
+ * TODO SquashMultipartResolver both needs to be initialized early (infrastructure bean) and requires a configService to
+ * get its configuration -> quick and dodgy solution is to fetch the service from beanFactory
+ */
+public class SquashMultipartResolver extends CommonsMultipartResolver implements ApplicationListener<ApplicationEvent> {
 
+	/**
+     * This shall be fetched from application context when a context started event is triggered.
+     */
+    private ConfigurationService configurationService;
 
-	private OsgiBundleApplicationContextEventMulticaster publisher;
-	
-	private ConfigurationService config; 
-	
-	private String maxUploadSizeKey;
-	
-	public void init(){
-		publisher.addApplicationListener(this);
-		updateConfig();
+	/**
+	 * Defaults to UPLOAD_SIZE_LIMIT
+	 */
+	private String maxUploadSizeKey = ConfigurationService.Properties.UPLOAD_SIZE_LIMIT;
+
+	public SquashMultipartResolver() {
+		super();
+		this.setDefaultEncoding("UTF-8");
 	}
 
-	public void setPublisher(OsgiBundleApplicationContextEventMulticaster publisher) {
-		this.publisher = publisher;
-	}
-
-	public void setConfig(ConfigurationService config) {
-		this.config = config;
-	}
-
-	public void setmaxUploadSizeKey(String maxUploadSizeKey) {
+	/**
+	 * Sets property name of max upload size which shall be fetched with configuration service.
+	 * @param maxUploadSizeKey
+	 */
+	public void setMaxUploadSizeKey(String maxUploadSizeKey) {
 		this.maxUploadSizeKey = maxUploadSizeKey;
 
 	}
-	
-	private void updateConfig(){
-		String uploadLimit = config.findConfiguration(maxUploadSizeKey);
+
+	private void updateConfig() {
+		String uploadLimit = configurationService.findConfiguration(maxUploadSizeKey);
 		setMaxUploadSize(Long.valueOf(uploadLimit));
 	}
 
-
 	@Override
-	public void onOsgiApplicationEvent(ConfigUpdateEvent event) {
-		updateConfig();	
+	public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof ContextStartedEvent && configurationService == null) {
+            configurationService = ((ContextStartedEvent) event).getApplicationContext().getBean(ConfigurationService.class);
+        }
+
+		if (event instanceof ConfigUpdateEvent || event instanceof ContextStartedEvent) {
+			updateConfig();
+		}
 	}
-	
+
 }

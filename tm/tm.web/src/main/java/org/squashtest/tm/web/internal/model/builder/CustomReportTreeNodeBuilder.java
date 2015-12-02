@@ -41,22 +41,25 @@ import org.squashtest.tm.service.security.PermissionEvaluationService;
 import org.squashtest.tm.web.internal.model.jstree.JsTreeNode;
 import org.squashtest.tm.web.internal.model.jstree.JsTreeNode.State;
 
+import javax.inject.Inject;
+
 /**
- * No param/generic for v1, also no milestone in tree. 
+ * No param/generic for v1, also no milestone in tree.
  * These class should be completed and probably be generisized for future workspaces
  * @author jthebault
  *
  */
-@Component
+@Component("customReport.nodeBuilder")
 @Scope("prototype")
 public class CustomReportTreeNodeBuilder {
-	
+
 	private static final String ROLE_ADMIN = "ROLE_ADMIN";
 	private static final Permission[] NODE_PERMISSIONS = { WRITE, CREATE, DELETE, EXECUTE, EXPORT };
 	private static final String[] PERM_NAMES = {WRITE.name(), CREATE.name(), DELETE.name(), EXECUTE.name(), EXPORT.name()};
 
-	protected final PermissionEvaluationService permissionEvaluationService;
-	
+	private final PermissionEvaluationService permissionEvaluationService;
+
+	@Inject
 	public CustomReportTreeNodeBuilder(PermissionEvaluationService permissionEvaluationService) {
 		super();
 		this.permissionEvaluationService = permissionEvaluationService;
@@ -76,28 +79,28 @@ public class CustomReportTreeNodeBuilder {
 				JsTreeNode childJsTreeNode = buildWithOpenedNodes((CustomReportLibraryNode) child, openedNodeIds);//NOSONAR cast is safe, we have the child of a crln
 				builtNode.getChildren().add(childJsTreeNode);
 			}
-		setNodeOpen(builtNode);	
+		setNodeOpen(builtNode);
 		}
 		return builtNode;
 	}
-	
+
 	public JsTreeNode build(CustomReportLibraryNode crln){
 		JsTreeNode builtNode = new JsTreeNode();
 		builtNode.setTitle(crln.getName());
 		builtNode.addAttr("resId", String.valueOf(crln.getId()));
 		builtNode.addAttr("id", String.valueOf(crln.getId()));
-		
+
 		//No milestone for custom report tree in first version so yes for all perm
 		builtNode.addAttr("milestone-creatable-deletable", "true");
 		builtNode.addAttr("milestone-editable", "true");
-		
-		
+
+
 		doPermissionCheck(builtNode,crln);
-		
+
 		//A visitor would be elegant here and allow interface type development but we don't want hibernate to fetch each linked entity
 		//for each node and we don't want subclass for each node type. sooooo the good old switch on enumerated type will do the job...
-		CustomReportTreeDefinition entityType = (CustomReportTreeDefinition) crln.getEntityType();//NO SONAR the argument for this method is a CustomReportLibraryNode so entity type is a CustomReportTreeDefinition 
-		
+		CustomReportTreeDefinition entityType = (CustomReportTreeDefinition) crln.getEntityType();//NO SONAR the argument for this method is a CustomReportLibraryNode so entity type is a CustomReportTreeDefinition
+
 		switch (entityType) {
 		case LIBRARY:
 			doLibraryBuild(builtNode,crln);
@@ -114,13 +117,13 @@ public class CustomReportTreeNodeBuilder {
 		default:
 			throw new UnsupportedOperationException("The node builder isn't implemented for node of type : " + entityType);
 		}
-		
+
 		return builtNode;
 	}
 
 	private void buildDescendantIfOpened() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void doLibraryBuild(JsTreeNode builtNode, CustomReportLibraryNode crln) {
@@ -153,7 +156,7 @@ public class CustomReportTreeNodeBuilder {
 			builtNode.addAttr(perm.getQuality(), permByName.get(perm.name()).toString());
 		}
 	}
-	
+
 	private void setStateForNodeContainer(JsTreeNode builtNode, TreeLibraryNode tln){
 		if (tln.hasContent()) {
 			builtNode.setState(State.closed);
@@ -162,21 +165,21 @@ public class CustomReportTreeNodeBuilder {
 			builtNode.setState(State.leaf);
 		}
 	}
-	
+
 	private void setNodeRel(JsTreeNode builtNode, String rel){
 		builtNode.addAttr("rel", rel);
 	}
-	
+
 	private void setNodeResType(JsTreeNode builtNode, String resType){
 		builtNode.addAttr("resType", resType);
 	}
-	
+
 	private void setNodeLeaf(JsTreeNode builtNode){
 		builtNode.setState(State.leaf);
 	}
-	
+
 	private void setNodeOpen(JsTreeNode builtNode){
 		builtNode.setState(State.open);
 	}
-	
+
 }

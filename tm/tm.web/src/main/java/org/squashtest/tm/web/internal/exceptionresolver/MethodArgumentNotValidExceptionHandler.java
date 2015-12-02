@@ -34,11 +34,11 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.AbstractHandlerExceptionResolver;
-import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
+import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 /**
- * This class handle MethodArgumentNotValidException and produce a more 
- * convenient http response than the spring default "400 - Bad request" 
+ * This class handle MethodArgumentNotValidException and produce a more
+ * convenient http response than the spring default "400 - Bad request"
  * This MethodArgumentNotValidException is threw by spring when a validation
  *  fail on @RequestBody @Valid verification
  * @author jthebault
@@ -49,13 +49,13 @@ public class MethodArgumentNotValidExceptionHandler extends
 		AbstractHandlerExceptionResolver {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MethodArgumentNotValidExceptionHandler.class);
-	
+
 	public MethodArgumentNotValidExceptionHandler() {
 		super();
 		//Setting order property to have this handler be placed before DefaultExceptionHandler in spring exception queu resolution
 		this.setOrder(Ordered.HIGHEST_PRECEDENCE);
 	}
-	
+
 	@Override
 	protected ModelAndView doResolveException(HttpServletRequest request,
 			HttpServletResponse response, Object handler, Exception ex) {
@@ -65,15 +65,15 @@ public class MethodArgumentNotValidExceptionHandler extends
 		}
 		return null;
 	}
-	
+
 	private ModelAndView handleException(HttpServletRequest request, HttpServletResponse response, Exception ex){
 		MethodArgumentNotValidException invalidAgrumentEx = (MethodArgumentNotValidException) ex; // NOSONAR Type was checked earlier
 		response.setStatus(HttpServletResponse.SC_PRECONDITION_FAILED);
 		List<FieldValidationErrorModel> errors = buildFieldValidationErrors(invalidAgrumentEx);
 
-		return new ModelAndView(new MappingJacksonJsonView(), "fieldValidationErrors", errors);
+		return new ModelAndView(new MappingJackson2JsonView(), "fieldValidationErrors", errors);
 	}
-	
+
 	private List<FieldValidationErrorModel> buildFieldValidationErrors(MethodArgumentNotValidException invalidAgrumentEx) {
 		List<FieldValidationErrorModel> ves = new ArrayList<FieldValidationErrorModel>();
 		List<FieldError> oes = invalidAgrumentEx.getBindingResult().getFieldErrors();
@@ -83,7 +83,7 @@ public class MethodArgumentNotValidExceptionHandler extends
 		}
 		return ves;
 	}
-	
+
 	private boolean exceptionIsHandled(Exception ex) {
 		// return ex instanceof MethodArgumentNotValidException
 		return MethodArgumentNotValidException.class.isAssignableFrom(ex.getClass());

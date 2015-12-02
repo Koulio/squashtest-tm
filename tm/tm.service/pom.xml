@@ -4,90 +4,52 @@
   <parent>
     <groupId>org.squashtest.tm</groupId>
     <artifactId>squashtest-csp-tm</artifactId>
-    <version>1.13.0.IT104-SNAPSHOT</version>
+    <version>1.13.0.NOSGI-SNAPSHOT</version>
   </parent>
 
   <artifactId>tm.service</artifactId>
-  <packaging>bundle</packaging>
+  <packaging>jar</packaging>
   <name>${project.groupId}.${project.artifactId}</name>
   <description>Squash TM services module - Provides Test management related internal services</description>
 
   <properties>
-    <dynamicdao.outputdir>${basedir}/META-INF/spring/</dynamicdao.outputdir>
+    <dynamicdao.outputdir>${project.build.directory}/generated-resources</dynamicdao.outputdir>
   </properties>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>squash-tm-bom</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
-    <!-- ====== /FOUNDATION ====== -->
 
-    <!-- ====== JTA ====== -->
-    <dependency>
-      <groupId>javax.transaction</groupId>
-      <artifactId>com.springsource.javax.transaction</artifactId>
-    </dependency>
-    <!-- ====== /CONNECTION POOL ====== -->
-
-    <!-- ====== VALIDATION ====== -->
-    <dependency>
-      <groupId>javax.validation</groupId>
-      <artifactId>com.springsource.javax.validation</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>net.sourceforge.ehcache</groupId>
-      <artifactId>com.springsource.net.sf.ehcache</artifactId>
-      <version>1.6.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.aopalliance</groupId>
-      <artifactId>com.springsource.org.aopalliance</artifactId>
-    </dependency>
-    <!-- ====== /SOME DATABASE ====== -->
-
-    <!-- ===== ASPECTJ ===== -->
-    <dependency>
-      <groupId>org.aspectj</groupId>
-      <artifactId>com.springsource.org.aspectj.runtime</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>com.springsource.org.hibernate.validator</artifactId>
-    </dependency>
-
-    <!-- JODA -->
-    <dependency>
-      <groupId>org.joda</groupId>
-      <artifactId>com.springsource.org.joda.time</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-      <scope>compile</scope>
-    </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
-      <scope>compile</scope>
     </dependency>
-    <!-- ====== /SPRING INTEGRATION TEST SUPPORT ====== -->
 
-    <!-- ====== CONNECTION POOL ====== -->
     <dependency>
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-dbcp2</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
     </dependency>
 
-    <!--======= /SQUASHTEST MODULES ======== -->
-
-    <!-- ====== FOUNDATION ====== -->
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <scope>compile</scope>
-    </dependency>
     <dependency>
       <groupId>org.squashtest.tm</groupId>
       <artifactId>core.api</artifactId>
@@ -99,40 +61,45 @@
       <artifactId>core.aspect</artifactId>
       <version>${project.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.squashtest.tm</groupId>
       <artifactId>core.bugtracker.api</artifactId>
       <version>${project.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.squashtest.tm</groupId>
       <artifactId>core.dynamicmanager</artifactId>
       <version>${project.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.squashtest.tm</groupId>
       <artifactId>core.foundation</artifactId>
       <version>${project.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.squashtest.tm</groupId>
       <artifactId>core.testautomation.api</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- ====== /VALIDATION ====== -->
 
-    <!-- ====== SOME DATABASE ====== -->
+    <dependency>
+      <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
     </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>hibernate-dependencies</artifactId>
-      <version>${project.version}</version>
-      <type>pom</type>
-    </dependency>
-    <!-- ====== /POI ====== -->
+
+    <!--<dependency>-->
+    <!--<groupId>org.hibernate</groupId>-->
+    <!--<artifactId>hibernate-search-orm</artifactId>-->
+    <!--</dependency>-->
 
     <dependency>
       <groupId>log4j</groupId>
@@ -140,86 +107,53 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>org.springframework.aop</artifactId>
-      <scope>compile</scope>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>ooxml-schemas</artifactId>
     </dependency>
-    <!-- For @COnfigurable, not sure we need it in this module -->
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>org.springframework.aspects</artifactId>
-    </dependency>
-    <!-- ====== /SPRING SECURITY ====== -->
 
-    <!-- ====== EHCACHE ====== -->
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>org.springframework.context.support</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>org.springframework.jdbc</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>org.springframework.security.acls</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>org.springframework.security.config</artifactId>
-    </dependency>
-    <!-- ===== /ASPECTJ ===== -->
-
-    <!-- ====== SPRING SECURITY ====== -->
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>org.springframework.security.core</artifactId>
-    </dependency>
-    <!-- ====== /SPRING FRAMEWORK ====== -->
-
-    <!-- ====== SPRING INTEGRATION TEST SUPPORT ====== -->
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>org.springframework.test</artifactId>
-    </dependency>
-    <!-- ====== JTA ====== -->
-
-    <!-- ====== SPRING FRAMEWORK ====== -->
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>org.springframework.transaction</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>org.squashtest.org.apache.lucene.core</artifactId>
-    </dependency>
-    <!-- ====== /EHCACHE ====== -->
-
-    <!-- ====== POI ====== -->
     <dependency>
       <groupId>org.apache.poi</groupId>
-      <artifactId>org.squashtest.org.apache.poi</artifactId>
+      <artifactId>poi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml-schemas</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>org.squashtest.org.hibernate.search</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-jdbc</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+
+    <dependency>
+      <!-- not in any relevant spring-boot-starter pom -->
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context-support</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.springframework.security.oauth</groupId>
       <artifactId>spring-security-oauth2</artifactId>
     </dependency>
-    <!-- ====== DEPENDENCY POMS ====== -->
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>springdm-bundle-dependencies</artifactId>
-      <version>${project.version}</version>
-      <type>pom</type>
-    </dependency>
-    <!-- ====== /DEPENDENCY POMS ====== -->
 
     <!--======= SQUASHTEST MODULES ======== -->
     <dependency>
@@ -229,12 +163,6 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>org.squashtest.csp.tools.unittest</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.squashtest.tm</groupId>
       <artifactId>org.squashtest.csp.tools.unittest</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
@@ -251,9 +179,6 @@
       <type>pom</type>
       <scope>test</scope>
     </dependency>
-
-    <!--======= /SQUASHTEST MODULES ======== -->
-
   </dependencies>
   <build>
 
@@ -274,31 +199,10 @@
 
     <plugins>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>add-resource</id>
-            <goals>
-              <goal>add-resource</goal>
-            </goals>
-            <phase>generate-resources</phase>
-            <configuration>
-              <resources>
-                <resource>
-                  <directory>${project.build.directory}/generated-resources</directory>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <generatedSourcesDirectory>${project.build.directory}/generated-resources/META-INF</generatedSourcesDirectory>
+          <generatedSourcesDirectory>${project.build.outputDirectory}/META-INF</generatedSourcesDirectory>
         </configuration>
         <dependencies>
           <dependency>
@@ -313,10 +217,10 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>aspectj-maven-plugin</artifactId>
         <configuration>
-          <showWeaveInfo>false</showWeaveInfo>
-          <source>${jdk.version}</source>
-          <target>${jdk.version}</target>
-          <complianceLevel>${jdk.version}</complianceLevel>
+          <showWeaveInfo>${verbose.compiler}</showWeaveInfo>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
+          <complianceLevel>${java.version}</complianceLevel>
           <!-- PreventConcurrentAspect must not be weaved, otherwise it cannot 
 						be ordered before @Transactional and @PreAuthorize, which is needed for it 
 						to properly work -->
@@ -331,41 +235,24 @@
             <aspectLibrary>
               <!-- For @Configurable. Not sure we need it in this module -->
               <groupId>org.springframework</groupId>
-              <artifactId>org.springframework.aspects</artifactId>
+              <artifactId>spring-aspects</artifactId>
+            </aspectLibrary>
+            <aspectLibrary>
+              <groupId>org.squashtest.tm</groupId>
+              <artifactId>tm.domain</artifactId>
             </aspectLibrary>
           </aspectLibraries>
         </configuration>
       </plugin>
 
       <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <_include>bnd.bnd</_include>
-          </instructions>
-        </configuration>
-      </plugin>
-
-      <!-- ====== SPOCK TESTS ====== -->
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
       </plugin>
-      <!-- ====== /SPOCK TESTS ====== -->
-
     </plugins>
   </build>
 
   <profiles>
-    <profile>
-      <id>linkMeta</id>
-      <properties>
-        <dynamicdao.outputdir>${project.build.outputDirectory}/META-INF/spring/</dynamicdao.outputdir>
-      </properties>
-    </profile>
-
     <profile>
       <id>eclipse</id>
       <activation>
@@ -388,9 +275,10 @@
                 <phase>package</phase>
                 <configuration>
                   <outputDirectory>${basedir}/META-INF/spring/</outputDirectory>
+                  <outputDirectory>${basedir}/META-INF/spring/</outputDirectory>
                   <resources>
                     <resource>
-                      <directory>${project.build.directory}/generated-resources/META-INF/spring</directory>
+                      <directory>${dynamicdao.outputdir}/META-INF/spring</directory>
                       <includes>
                         <include>**/*.xml</include>
                       </includes>
